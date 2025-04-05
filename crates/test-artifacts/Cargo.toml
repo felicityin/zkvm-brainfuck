@@ -1,0 +1,4 @@
+[package]
+name = "test-artifacts"
+version.workspace = true
+edition.workspace = true

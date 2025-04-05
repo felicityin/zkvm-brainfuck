@@ -1,0 +1,43 @@
+[workspace.package]
+name = "zkvm-brainfuck"
+version = "0.0.1"
+edition = "2021"
+
+[workspace]
+members = [
+    "crates/core/executor",
+    # "crates/core/machine",
+    "crates/test-artifacts",
+]
+resolver = "2"
+
+[workspace.dependencies]
+p3-air = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-field = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-challenger = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-commit = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-dft = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-matrix = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-maybe-rayon = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-util = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-fri = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-koala-bear  = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-circle = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-keccak = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-keccak-air = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-mds = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-merkle-tree = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-mersenne-31 = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-monty-31 = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-poseidon2 = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-symmetric = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-bn254-fr = { git = "https://github.com/zkMIPS/Plonky3" }
+p3-uni-stark = { git = "https://github.com/zkMIPS/Plonky3" }
+
+anyhow = "1.0.75"
+serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
+serde_json = "1.0.132"
+hashbrown = "0.15.2"
+
+# For testing.
+test-artifacts = { path = "crates/test-artifacts", version = "0.0.1" }

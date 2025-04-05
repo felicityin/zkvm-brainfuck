@@ -1,0 +1,24 @@
+[package]
+name = "core-executor"
+description = "Brainfuck executor"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+# p3
+p3-field = { workspace = true }
+p3-maybe-rayon = { workspace = true, features = ["parallel"] }
+p3-koala-bear = { workspace = true }
+
+# misc
+anyhow = { workspace = true }
+enum-map = { version = "2.7.3", features = ["serde"] }
+serde = { workspace = true, features = ["derive", "rc"] }
+serde_json = { workspace = true }
+test-artifacts = { workspace = true, optional = true }
+hashbrown = { workspace = true, features = ["serde", "inline-more"] }
+thiserror = "2.0.12"
+
+[features]
+default = ["programs"]
+programs = ["dep:test-artifacts"]
