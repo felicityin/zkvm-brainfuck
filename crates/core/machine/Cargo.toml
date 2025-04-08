@@ -1,0 +1,42 @@
+[package]
+name = "bf-core-matchine"
+description = "Brainfuck matchine"
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+
+[dependencies]
+p3-air = { workspace = true }
+p3-koala-bear = { workspace = true }
+p3-challenger = { workspace = true }
+p3-field = { workspace = true }
+p3-keccak-air = { workspace = true }
+p3-matrix = { workspace = true }
+p3-maybe-rayon = { workspace = true, features = ["parallel"] }
+p3-uni-stark = { workspace = true }
+p3-util = { workspace = true }
+p3-symmetric = { workspace = true }
+
+# misc
+serde = { workspace = true, features = ["derive", "rc"] }
+serde_json = { workspace = true }
+hashbrown = { workspace = true, features = ["serde", "inline-more"] }
+itertools = { workspace = true }
+rand = "0.9.0"
+num_cpus = "1.16.0"
+size = "0.5.0"
+tempfile = "3.10.1"
+tracing = { workspace = true }
+tracing-forest = { version = "0.1.6", features = ["ansi", "smallvec"] }
+tracing-subscriber = { workspace = true, features = ["std", "env-filter"] }
+strum_macros = "0.27"
+strum = "0.27"
+web-time = "1.1.0"
+thiserror = "2.0.12"
+
+bf-core-executor = { workspace = true }
+bf-derive = { workspace = true }
+bf-stark = { workspace = true }

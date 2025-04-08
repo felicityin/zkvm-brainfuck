@@ -1,17 +1,31 @@
 [workspace.package]
 name = "zkvm-brainfuck"
-version = "0.0.1"
+version = "1.0.0"
 edition = "2021"
+license = "MIT"
+rust-version = "1.87.0"
+repository = "https://github.com/felicityin/zkvm-brainfuck"
+keywords = ["brainfuck", "zero-knowledge", "zkvm"]
+categories = ["cryptography"]
 
 [workspace]
 members = [
     "crates/core/executor",
-    # "crates/core/machine",
+    "crates/core/machine",
+    "crates/derive",
+    "crates/primitives",
     "crates/test-artifacts",
+    "crates/stark",
 ]
 resolver = "2"
 
 [workspace.dependencies]
+bf-core-executor = { path = "crates/core/executor", version = "1.0.0" }
+bf-core-machine = { path = "crates/core/machine", version = "1.0.0" }
+bf-derive = { path = "crates/derive", version = "1.0.0" }
+bf-stark = { path = "crates/stark", version = "1.0.0" }
+bf-primitives = { path = "crates/primitives", version = "1.0.0" }
+
 p3-air = { git = "https://github.com/zkMIPS/Plonky3" }
 p3-field = { git = "https://github.com/zkMIPS/Plonky3" }
 p3-challenger = { git = "https://github.com/zkMIPS/Plonky3" }
@@ -35,9 +49,14 @@ p3-bn254-fr = { git = "https://github.com/zkMIPS/Plonky3" }
 p3-uni-stark = { git = "https://github.com/zkMIPS/Plonky3" }
 
 anyhow = "1.0.75"
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3.17" }
+tracing-forest = { version = "0.1.6", default-features = false }
+rand = "0.9.0"
 serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
 serde_json = "1.0.132"
 hashbrown = "0.15.2"
+itertools = "0.14.0"
 
 # For testing.
-test-artifacts = { path = "crates/test-artifacts", version = "0.0.1" }
+test-artifacts = { path = "crates/test-artifacts", version = "1.0.0" }

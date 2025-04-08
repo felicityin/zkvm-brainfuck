@@ -28,6 +28,17 @@ pub enum Opcode {
     Output = 7,
 }
 
+/// Byte Opcode.
+///
+/// This represents a basic operation that can be performed on a byte. Usually, these operations
+/// are performed via lookup tables on that iterate over the domain of two 8-bit values.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[allow(clippy::upper_case_acronyms)]
+pub enum ByteOpcode {
+    /// Unsigned 8-bit Range Check.
+    U8Range = 0,
+}
+
 impl Opcode {
     /// Get the mnemonic for the opcode.
     #[must_use]

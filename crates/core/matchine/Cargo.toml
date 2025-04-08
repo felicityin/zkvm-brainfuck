@@ -1,9 +1,0 @@
-[package]
-name = "core-matchine"
-description = "Brainfuck matchine"
-version = { workspace = true }
-edition = { workspace = true }
-
-# misc
-serde = { workspace = true, features = ["derive", "rc"] }
-serde_json = { workspace = true }

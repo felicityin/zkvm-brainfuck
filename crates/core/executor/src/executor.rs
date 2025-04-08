@@ -11,6 +11,10 @@ use crate::state::ExecutionState;
 use crate::opcode::Opcode;
 use crate::instruction::Instruction;
 
+/// The default increment for the program counter.  Is used for all instructions except
+/// for branches and jumps.
+pub const DEFAULT_PC_INC: u32 = 1;
+
 /// An executor for the zkVM.
 ///
 /// The executor is responsible for executing a user program and tracing important events which
@@ -106,9 +110,9 @@ impl Executor {
     #[allow(clippy::too_many_lines)]
     fn execute_instruction(&mut self, instruction: &Instruction) -> Result<(), ExecutionError> {
         let mut next_pc = self.state.pc.wrapping_add(1);
-        let mut mv_next: u32 = 0;
+        let mut mv_next: u8 = 0;
         let mp: u32;
-        let mv: u32;
+        let mv: u8;
 
         // Execute the instruction.
         match instruction.opcode {
@@ -139,7 +143,7 @@ impl Executor {
     }
 
     /// Execute a memory instruction.
-    fn execute_memory(&mut self, instruction: &Instruction) -> (u32, u32) {
+    fn execute_memory(&mut self, instruction: &Instruction) -> (u32, u8) {
         let mp = match instruction.opcode {
             Opcode::MemStepForward => self.state.mem_ptr.wrapping_add(1),
             Opcode::MemStepBackward => self.state.mem_ptr.wrapping_sub(1),
@@ -151,7 +155,7 @@ impl Executor {
     }
 
     /// Execute an ALU instruction.
-    fn execute_alu(&mut self, instruction: &Instruction) -> (u32, u32, u32) {
+    fn execute_alu(&mut self, instruction: &Instruction) -> (u8, u32, u8) {
         let mv = self.rr_cpu(self.state.mem_ptr);
         let mv_next = match instruction.opcode {
             Opcode::Add => mv.wrapping_add(1),
@@ -163,7 +167,7 @@ impl Executor {
     }
 
     /// Execute a jump instruction.
-    fn execute_jump(&mut self, instruction: &Instruction) -> (u32, u32, u32) {
+    fn execute_jump(&mut self, instruction: &Instruction) -> (u32, u8, u32) {
         let mv = self.rr_cpu(self.state.mem_ptr);
         let next_pc = match instruction.opcode {
             Opcode::LoopStart => {
@@ -186,12 +190,12 @@ impl Executor {
     }
 
     /// Execute an IO instruction.
-    fn execute_io(&mut self, instruction: &Instruction) -> (u32, u32) {
+    fn execute_io(&mut self, instruction: &Instruction) -> (u32, u8) {
         let (mp, mv) = match instruction.opcode {
             Opcode::Input => {
                 let input = self.state.input_stream[self.state.input_stream_ptr];
-                self.rw_cpu(self.state.mem_ptr, input as u32);
-                (self.state.mem_ptr, input as u32)
+                self.rw_cpu(self.state.mem_ptr, input);
+                (self.state.mem_ptr, input)
             }
             Opcode::Output => {
                 let output = self.rr_cpu(self.state.mem_ptr);
@@ -210,9 +214,9 @@ impl Executor {
         clk: u32,
         next_pc: u32,
         instruction: &Instruction,
-        mv_next: u32,
+        mv_next: u8,
         mp: u32,
-        mv: u32,
+        mv: u8,
         memory_access: MemoryAccessRecord,
     ) {
         self.record.cpu_events.push(CpuEvent {
@@ -235,7 +239,7 @@ impl Executor {
         }
 
         if instruction.opcode == Opcode::LoopStart || instruction.opcode == Opcode::LoopEnd {
-            self.record.jump_events.push(JumpEvent {
+            self.record.jump_events.push(JmpEvent {
                 pc: self.state.pc,
                 next_pc,
                 opcode: instruction.opcode,
@@ -247,7 +251,7 @@ impl Executor {
 
     /// Read the memory register.
     #[inline]
-    pub fn rr_cpu(&mut self, addr: u32) -> u32 {
+    pub fn rr_cpu(&mut self, addr: u32) -> u8 {
         // Read the address from memory and create a memory read record if in trace mode.
         let record = self.rr_traced(addr, self.state.clk);
         self.memory_accesses.src = Some(record.into());
@@ -255,7 +259,7 @@ impl Executor {
     }
 
     /// Write to a register.
-    pub fn rw_cpu(&mut self, register: u32, value: u32) {
+    pub fn rw_cpu(&mut self, register: u32, value: u8) {
         // Read the address from memory and create a memory read record.
         let record = self.rw_traced(register, value, self.state.clk + 1);
         self.memory_accesses.dst = Some(record.into());
@@ -288,7 +292,7 @@ impl Executor {
     }
 
     /// Write a word to a register and create an access record.
-    pub fn rw_traced(&mut self, addr: u32, value: u32, timestamp: u32) -> MemoryWriteRecord {
+    pub fn rw_traced(&mut self, addr: u32, value: u8, timestamp: u32) -> MemoryWriteRecord {
         let record: &mut MemoryRecord =  &mut self.state.memory_access.entry(addr)
             .or_insert(MemoryRecord { value: 0, timestamp: 0 });
         let prev_record = *record;

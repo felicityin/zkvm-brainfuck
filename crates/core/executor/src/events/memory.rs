@@ -2,28 +2,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::opcode::Opcode;
 
-/// CPU Event.
-///
-/// This object encapsulates the information needed to prove a CPU operation. This includes its
-/// shard, opcode, operands, and other relevant information.
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
-pub struct CpuEvent {
-    /// The clock cycle.
-    pub clk: u32,
-    /// The program counter.
-    pub pc: u32,
-    /// The next program counter.
-    pub next_pc: u32,
-    /// The first operand.
-    pub mv_next: u32,
-    /// The first operand memory record.
-    pub dst_access: Option<MemoryRecordEnum>,
-    /// The second operand.
-    pub mv: u32,
-    /// The second operand memory record.
-    pub src_access: Option<MemoryRecordEnum>,
-}
-
 /// Memory Event.
 ///
 /// This object encapsulates the information needed to prove a memory access operation.
@@ -35,21 +13,6 @@ pub struct MemoryEvent {
     pub initial_mem_access: MemoryRecord,
     /// The final memory access.
     pub final_mem_access: MemoryRecord,
-}
-
-/// Arithmetic Logic Unit (ALU) Event.
-///
-/// This object encapsulated the information needed to prove an ALU operation.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct AluEvent {
-    /// The program counter.
-    pub pc: u32,
-    /// The opcode.
-    pub opcode: Opcode,
-    /// The output operand.
-    pub mv_next: u32,
-    /// The input operand.
-    pub mv: u32,
 }
 
 /// Jump Instruction Event.
@@ -78,7 +41,7 @@ pub struct MemoryRecord {
     /// The timestamp.
     pub timestamp: u32,
     /// The value.
-    pub value: u32,
+    pub value: u8,
 }
 
 /// Memory Record Enum.
@@ -112,7 +75,7 @@ impl From<MemoryWriteRecord> for MemoryRecordEnum {
 #[derive(Debug, Copy, Clone, Default, Serialize, Deserialize)]
 pub struct MemoryReadRecord {
     /// The value.
-    pub value: u32,
+    pub value: u8,
     /// The timestamp.
     pub timestamp: u32,
     /// The previous timestamp.
@@ -127,11 +90,11 @@ pub struct MemoryReadRecord {
 #[derive(Debug, Copy, Clone, Default, Serialize, Deserialize)]
 pub struct MemoryWriteRecord {
     /// The value.
-    pub value: u32,
+    pub value: u8,
     /// The timestamp.
     pub timestamp: u32,
     /// The previous value.
-    pub prev_value: u32,
+    pub prev_value: u8,
     /// The previous timestamp.
     pub prev_timestamp: u32,
 }
