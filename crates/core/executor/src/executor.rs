@@ -110,6 +110,7 @@ impl Executor {
     #[allow(clippy::too_many_lines)]
     fn execute_instruction(&mut self, instruction: &Instruction) -> Result<(), ExecutionError> {
         let mut next_pc = self.state.pc.wrapping_add(1);
+        let mut dst: u32 = 0;
         let mut mv_next: u8 = 0;
         let mp: u32;
         let mv: u8;
@@ -119,8 +120,10 @@ impl Executor {
             Opcode::MemStepForward | Opcode::MemStepBackward => (mp, mv)
                 = self.execute_memory(instruction),
             Opcode::Add | Opcode::Sub => (mv_next, mp, mv) = self.execute_alu(instruction),
-            Opcode::LoopStart | Opcode::LoopEnd =>  (mp, mv, next_pc)
-                = self.execute_jump(instruction),
+            Opcode::LoopStart | Opcode::LoopEnd => {
+                (mp, mv, next_pc) = self.execute_jump(instruction);
+                dst = next_pc;
+            }
             Opcode::Input | Opcode::Output => (mp, mv) = self.execute_io(instruction),
         }
 
@@ -128,6 +131,7 @@ impl Executor {
             self.state.clk,
             next_pc,
             instruction,
+            dst,
             mv_next,
             mp,
             mv,
@@ -214,6 +218,7 @@ impl Executor {
         clk: u32,
         next_pc: u32,
         instruction: &Instruction,
+        jmp_dst: u32,
         mv_next: u8,
         mp: u32,
         mv: u8,
@@ -223,6 +228,8 @@ impl Executor {
             clk,
             pc: self.state.pc,
             next_pc,
+            jmp_dst,
+            mp,
             mv_next,
             dst_access: memory_access.dst,
             mv,
@@ -230,22 +237,17 @@ impl Executor {
         });
 
         if instruction.opcode == Opcode::Add || instruction.opcode == Opcode::Sub {
-            self.record.add_events.push(AluEvent {
-                pc: self.state.pc,
-                opcode: instruction.opcode,
-                mv_next,
-                mv,
-            });
+            self.record.add_events.push(AluEvent::new(self.state.pc, instruction.opcode, mv_next, mv));
         }
 
         if instruction.opcode == Opcode::LoopStart || instruction.opcode == Opcode::LoopEnd {
-            self.record.jump_events.push(JmpEvent {
-                pc: self.state.pc,
+            self.record.jump_events.push(JumpEvent::new(
+                self.state.pc,
                 next_pc,
-                opcode: instruction.opcode,
-                mp,
+                instruction.opcode,
+                jmp_dst,
                 mv,
-            });
+            ));
         }
     }
 

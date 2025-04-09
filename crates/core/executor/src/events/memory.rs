@@ -15,24 +15,6 @@ pub struct MemoryEvent {
     pub final_mem_access: MemoryRecord,
 }
 
-/// Jump Instruction Event.
-///
-/// This object encapsulated the information needed to prove a jump operation.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[repr(C)]
-pub struct JumpEvent {
-    /// The program counter.
-    pub pc: u32,
-    /// The next program counter.
-    pub next_pc: u32,
-    /// The opcode.
-    pub opcode: Opcode,
-    /// The first operand value.
-    pub mp: u32,
-    /// The second operand value.
-    pub mv: u32,
-}
-
 /// Memory Record.
 ///
 /// This object encapsulates the information needed to prove a memory access operation.

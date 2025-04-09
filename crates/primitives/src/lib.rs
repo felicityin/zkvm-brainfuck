@@ -3,6 +3,8 @@ use p3_field::FieldAlgebra;
 use p3_koala_bear::{KoalaBear, Poseidon2KoalaBear};
 use p3_poseidon2::{ExternalLayerConstants, Poseidon2};
 
+pub mod consts;
+
 lazy_static! {
     // These constants are created by a RNG.
 

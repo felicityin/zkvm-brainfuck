@@ -35,7 +35,7 @@ impl AluEvent {
 /// This object encapsulated the information needed to prove a jump operation.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[repr(C)]
-pub struct JmpEvent {
+pub struct JumpEvent {
     /// The program counter.
     pub pc: u32,
     /// The next program counter.
@@ -43,7 +43,21 @@ pub struct JmpEvent {
     /// The opcode.
     pub opcode: Opcode,
     /// The first operand value.
-    pub mp: u32,
+    pub dst: u32,
     /// The second operand value.
     pub mv: u8,
+}
+
+impl JumpEvent {
+    /// Create a new [`JumpEvent`].
+    #[must_use]
+    pub fn new(pc: u32, next_pc: u32, opcode: Opcode, dst: u32, mv: u8) -> Self {
+        Self {
+            pc,
+            next_pc,
+            opcode,
+            dst,
+            mv
+        }
+    }
 }

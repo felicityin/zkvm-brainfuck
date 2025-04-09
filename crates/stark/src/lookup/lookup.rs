@@ -23,11 +23,11 @@ pub enum LookupKind {
     /// Lookup with the program table, loading an instruction at a given pc address.
     Program = 2,
 
-    /// Lookup with instruction oracle.
-    Instruction = 3,
-
     /// Lookup with the ALU operations.
-    Alu = 4,
+    Alu = 3,
+
+    /// Lookup with the Jump operations.
+    Jump = 4,
 
     /// Lookup with the byte lookup table for byte operations.
     Byte = 5,
@@ -46,8 +46,8 @@ impl LookupKind {
         vec![
             LookupKind::Memory,
             LookupKind::Program,
-            LookupKind::Instruction,
             LookupKind::Alu,
+            LookupKind::Jump,
             LookupKind::Byte,
             LookupKind::Range,
             LookupKind::Field,
@@ -84,8 +84,8 @@ impl Display for LookupKind {
         match self {
             LookupKind::Memory => write!(f, "Memory"),
             LookupKind::Program => write!(f, "Program"),
-            LookupKind::Instruction => write!(f, "Instruction"),
             LookupKind::Alu => write!(f, "Alu"),
+            LookupKind::Jump => write!(f, "Jump"),
             LookupKind::Byte => write!(f, "Byte"),
             LookupKind::Range => write!(f, "Range"),
             LookupKind::Field => write!(f, "Field"),
