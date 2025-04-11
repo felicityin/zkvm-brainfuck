@@ -37,6 +37,8 @@ pub enum Opcode {
 pub enum ByteOpcode {
     /// Unsigned 8-bit Range Check.
     U8Range = 0,
+    /// Unsigned 16-bit Range Check.
+    U16Range = 1,
 }
 
 impl Opcode {

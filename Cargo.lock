@@ -82,6 +82,8 @@ dependencies = [
  "p3-uni-stark",
  "p3-util",
  "rand 0.9.0",
+ "rayon",
+ "rayon-scan",
  "serde",
  "serde_json",
  "size",
@@ -876,6 +878,15 @@ checksum = "1465873a3dfdaa8ae7cb14b4383657caab0b3e8a0aa9ae8e04b044854c8dfce2"
 dependencies = [
  "crossbeam-deque",
  "crossbeam-utils",
+]
+
+[[package]]
+name = "rayon-scan"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f87cc11a0140b4b0da0ffc889885760c61b13672d80a908920b2c0df078fa14"
+dependencies = [
+ "rayon",
 ]
 
 [[package]]

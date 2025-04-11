@@ -16,10 +16,10 @@ pub struct AddSubCols<T> {
     /// It's result will be `mv_next` for the add operation and `mv` for the sub operation.
     pub add_operation: AddOperation<T>,
 
-    /// The first input operand.
-    pub mv_next: T,
+    /// The next memory value.
+    pub next_mv: T,
 
-    /// The second input operand.
+    /// The memory value.
     pub mv: T,
 
     /// Boolean to indicate whether the row is for an add operation.

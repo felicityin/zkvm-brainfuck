@@ -61,3 +61,35 @@ impl JumpEvent {
         }
     }
 }
+
+/// Memory Instruction Event.
+///
+/// This object encapsulated the information needed to prove a RISC-V memory operation.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[repr(C)]
+pub struct MemInstrEvent {
+    /// The clk.
+    pub clk: u32,
+    /// The program counter.
+    pub pc: u32,
+    /// The opcode.
+    pub opcode: Opcode,
+    /// The memory pointer.
+    pub mp: u32,
+    /// The next memory pointer.
+    pub next_mp: u32,
+}
+
+impl MemInstrEvent {
+    /// Create a new [`MemInstrEvent`].
+    #[must_use]
+    pub fn new(
+        clk: u32,
+        pc: u32,
+        opcode: Opcode,
+        mp: u32,
+        next_mp: u32,
+    ) -> Self {
+        Self { clk, pc, opcode, mp, next_mp }
+    }
+}

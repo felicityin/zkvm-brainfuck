@@ -33,7 +33,7 @@ where
         // Evaluate the addition operation.
         AddOperation::<AB::F>::eval(
             builder,
-            local.mv_next,
+            local.next_mv,
             local.mv,
             local.add_operation,
             local.is_add + local.is_sub,

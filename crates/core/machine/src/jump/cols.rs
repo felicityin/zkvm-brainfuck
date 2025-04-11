@@ -1,7 +1,7 @@
 use bf_derive::AlignedBorrow;
 use bf_stark::Word;
 
-use crate::operations::KoalaBearWordRangeChecker;
+use crate::operations::{IsZeroOperation, KoalaBearWordRangeChecker};
 
 /// The number of main trace columns for `JumpChip`.
 pub const NUM_JUMP_COLS: usize = size_of::<JumpCols<u8>>();
@@ -23,7 +23,7 @@ pub struct JumpCols<T> {
     /// The memory value, value of the memory pointed at by mp.
     pub mv: T,
     /// Whether the mv is zero.
-    pub is_mv_zero: T,
+    pub is_mv_zero: IsZeroOperation<T>,
 
     /// Jump Instructions.
     pub is_loop_start: T,

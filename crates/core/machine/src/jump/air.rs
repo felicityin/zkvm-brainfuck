@@ -6,8 +6,7 @@ use p3_matrix::Matrix;
 use bf_core_executor::{Opcode, DEFAULT_PC_INC};
 use bf_stark::air::{BaseAirBuilder, BfAirBuilder};
 
-use crate::operations::KoalaBearWordRangeChecker;
-
+use crate::operations::{IsZeroOperation, KoalaBearWordRangeChecker};
 use super::{JumpChip, JumpCols, NUM_JUMP_COLS};
 
 impl<F> BaseAir<F> for JumpChip {
@@ -30,16 +29,23 @@ where
         builder.assert_bool(local.is_loop_end);
         builder.assert_bool(is_real.clone());
 
+        IsZeroOperation::<AB::F>::eval(
+            builder,
+            local.mv.into(),
+            local.is_mv_zero,
+            is_real.clone(),
+        );
+
         // [: jump if mv = 0
         builder
             .when(local.is_loop_start)
-            .when(local.is_mv_zero)
+            .when(local.is_mv_zero.result)
             .assert_eq(local.next_pc.reduce::<AB>(), local.dst.reduce::<AB>());
 
         // [: skip if mv != 0
         builder
             .when(local.is_loop_start)
-            .when_not(local.is_mv_zero)
+            .when_not(local.is_mv_zero.result)
             .assert_eq(
                 local.next_pc.reduce::<AB>(),
                 local.pc.reduce::<AB>() + AB::F::from_canonical_u32(DEFAULT_PC_INC),
@@ -48,13 +54,13 @@ where
         // ]: jump if mv != 0
         builder
             .when(local.is_loop_end)
-            .when_not(local.is_mv_zero)
+            .when_not(local.is_mv_zero.result)
             .assert_eq(local.next_pc.reduce::<AB>(), local.dst.reduce::<AB>());
 
         // ]: skip if mv = 0
         builder
             .when(local.is_loop_end)
-            .when(local.is_mv_zero)
+            .when(local.is_mv_zero.result)
             .assert_eq(
                 local.next_pc.reduce::<AB>(),
                 local.pc.reduce::<AB>() + AB::F::from_canonical_u32(DEFAULT_PC_INC),

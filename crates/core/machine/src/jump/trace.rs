@@ -4,11 +4,11 @@ use itertools::Itertools;
 use p3_field::{PrimeField, PrimeField32};
 use p3_matrix::dense::RowMajorMatrix;
 use p3_maybe_rayon::prelude::{ParallelBridge, ParallelIterator};
+
 use bf_core_executor::{
     events::{JumpEvent, ByteLookupEvent, ByteRecord},
     ExecutionRecord, Opcode, Program,
 };
-
 use bf_stark::air::MachineAir;
 
 use crate::utils::{next_power_of_two, zeroed_f_vec};
@@ -87,11 +87,11 @@ impl JumpChip {
         cols.next_pc = event.next_pc.into();
         cols.next_pc_range_checker.populate(event.next_pc);
 
-        cols.is_loop_start = F::from_bool(event.opcode == Opcode::LoopStart);
-        cols.is_loop_end = F::from_bool(event.opcode == Opcode::LoopEnd);
+        cols.is_loop_start = F::from_bool(matches!(event.opcode, Opcode::LoopStart));
+        cols.is_loop_end = F::from_bool(matches!(event.opcode, Opcode::LoopEnd));
 
         cols.dst = event.dst.into();
         cols.mv = F::from_canonical_u8(event.mv);
-        cols.is_mv_zero = F::from_bool(cols.mv.is_zero());
+        cols.is_mv_zero.populate_from_field_element(cols.mv);
     }
 }

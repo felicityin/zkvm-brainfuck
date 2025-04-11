@@ -17,7 +17,10 @@ pub const NUM_BYTE_OPS: usize = 1;
 pub struct ByteLookupEvent {
     /// The opcode.
     pub opcode: ByteOpcode,
-    pub value: u8,
+    /// The first operand.
+    pub a: u16,
+    /// The second operand.
+    pub b: u8,
 }
 
 /// A type that can record byte lookup events.
@@ -39,11 +42,21 @@ pub trait ByteRecord {
         }
     }
 
+    /// Adds a `ByteLookupEvent` to verify `a` is indeed u16.
+    fn add_u16_range_check(&mut self, value: u16) {
+        self.add_byte_lookup_event(ByteLookupEvent {
+            opcode: ByteOpcode::U16Range,
+            a: value,
+            b: 0,
+        });
+    }
+
     /// Adds `ByteLookupEvent`s to verify that all the bytes in the input slice are indeed bytes.
     fn add_u8_range_check(&mut self, value: u8) {
         self.add_byte_lookup_event(ByteLookupEvent {
             opcode: ByteOpcode::U8Range,
-            value,
+            a: 0,
+            b: value,
         });
     }
 
@@ -57,8 +70,8 @@ pub trait ByteRecord {
 impl ByteLookupEvent {
     /// Creates a new `ByteLookupEvent`.
     #[must_use]
-    pub fn new(opcode: ByteOpcode, value: u8) -> Self {
-        Self { opcode, value }
+    pub fn new(opcode: ByteOpcode, a: u16, b: u8) -> Self {
+        Self { opcode, a, b, }
     }
 }
 

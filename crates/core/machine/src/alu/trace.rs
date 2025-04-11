@@ -105,15 +105,15 @@ impl AddSubChip {
     ) {
         cols.pc = F::from_canonical_u32(event.pc);
 
-        cols.is_add = F::from_bool(event.opcode == Opcode::Add);
-        cols.is_sub = F::from_bool(event.opcode == Opcode::Sub);
+        cols.is_add = F::from_bool(matches!(event.opcode, Opcode::Add));
+        cols.is_sub = F::from_bool(matches!(event.opcode, Opcode::Sub));
 
         let is_add = event.opcode == Opcode::Add;
         let operand_1 = if is_add { event.mv_next } else { event.mv };
         let operand_2 = 1;
 
         cols.add_operation.populate(blu, operand_1, operand_2);
-        cols.mv_next = F::from_canonical_u8(operand_1);
+        cols.next_mv = F::from_canonical_u8(operand_1);
         cols.mv = F::from_canonical_u8(operand_2);
     }
 }
