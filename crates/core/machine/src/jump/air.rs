@@ -89,7 +89,7 @@ where
             opcode,
             local.dst.reduce::<AB>(),
             local.mv,
-            local.is_loop_start,
+            is_real,
         );
     }
 }

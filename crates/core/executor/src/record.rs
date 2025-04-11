@@ -27,7 +27,7 @@ pub struct ExecutionRecord {
     /// A trace of the memory instructions.
     pub memory_instr_events: Vec<MemInstrEvent>,
     /// A trace of the memory events.
-    pub memory_events: Vec<MemoryEvent>,
+    pub memory_access: Vec<MemoryEvent>,
     /// A trace of the byte lookups that are needed.
     pub byte_lookups: HashMap<ByteLookupEvent, usize>,
 }

@@ -30,7 +30,7 @@ where
         let is_real = local.is_step_forward + local.is_step_backward;
         builder.assert_bool(local.is_step_forward);
         builder.assert_bool(local.is_step_backward);
-        builder.assert_bool(is_real.clone());
+        builder.assert_bool(is_real);
 
         builder.when(local.is_step_forward).assert_eq(
             local.next_mp.reduce::<AB>(),
@@ -49,14 +49,14 @@ where
             builder,
             local.mp,
             local.mp_range_checker,
-            is_real.clone(),
+            local.is_real.into(),
         );
 
         KoalaBearWordRangeChecker::<AB::F>::range_check(
             builder,
             local.next_mp,
             local.next_mp_range_checker,
-            is_real.clone(),
+            local.is_real.into(),
         );
 
         // builder.receive_mem_instr(
