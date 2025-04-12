@@ -68,8 +68,8 @@ impl<F: PrimeField32> MachineAir<F> for MemoryInstructionsChip {
         RowMajorMatrix::new(values, NUM_MEMORY_INSTRUCTIONS_COLS)
     }
 
-    fn included(&self, shard: &Self::Record) -> bool {
-        !shard.memory_instr_events.is_empty()
+    fn included(&self, record: &Self::Record) -> bool {
+        !record.memory_instr_events.is_empty()
     }
 
     fn local_only(&self) -> bool {

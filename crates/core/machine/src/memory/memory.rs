@@ -19,7 +19,7 @@ use crate::utils::{next_power_of_two, zeroed_f_vec};
 
 pub const NUM_MEMORY_ENTRIES_PER_ROW: usize = 4;
 
-pub(crate) const NUM_MEMORY_INIT_COLS: usize = size_of::<MemoryCols<u8>>();
+pub(crate) const NUM_MEMORY_INIT_COLS: usize = size_of::<MemCols<u8>>();
 
 #[derive(AlignedBorrow, Debug, Clone, Copy)]
 #[repr(C)]
@@ -45,7 +45,7 @@ struct SingleMemoryLocal<T> {
 
 #[derive(AlignedBorrow, Debug, Clone, Copy)]
 #[repr(C)]
-pub struct MemoryCols<T> {
+pub struct MemCols<T> {
     memory_entries: [SingleMemoryLocal<T>; NUM_MEMORY_ENTRIES_PER_ROW],
 }
 
@@ -95,7 +95,7 @@ impl<F: PrimeField32> MachineAir<F> for MemoryChip {
             .for_each(|(i, rows)| {
                 rows.chunks_mut(NUM_MEMORY_INIT_COLS).enumerate().for_each(|(j, row)| {
                     let idx = (i * chunk_size + j) * NUM_MEMORY_ENTRIES_PER_ROW;
-                    let cols: &mut MemoryCols<F> = row.borrow_mut();
+                    let cols: &mut MemCols<F> = row.borrow_mut();
                     for k in 0..NUM_MEMORY_ENTRIES_PER_ROW {
                         let cols = &mut cols.memory_entries[k];
                         if idx + k < input.memory_access.len() {
@@ -128,7 +128,7 @@ where
     fn eval(&self, builder: &mut AB) {
         let main = builder.main();
         let local = main.row_slice(0);
-        let local: &MemoryCols<AB::Var> = (*local).borrow();
+        let local: &MemCols<AB::Var> = (*local).borrow();
 
         for local in local.memory_entries.iter() {
             let values =

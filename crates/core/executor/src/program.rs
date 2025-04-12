@@ -33,7 +33,7 @@ impl Program {
             } else if c == ']' {
                 // record loop's end in beginning
                 let start_pos = loop_stack.pop().unwrap();
-                instructions[start_pos].operand = instructions.len() as u32;
+                instructions[start_pos].op_a = instructions.len() as u32;
                 // record loop's start
                 instructions.push(Instruction::decode_from(c, Some((start_pos + 1) as u32)));
             } else if c != ' ' && c != '\n' && c != '\r' {

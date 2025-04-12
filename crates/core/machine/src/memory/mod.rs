@@ -6,4 +6,3 @@ mod memory;
 pub use consistency::*;
 // pub use global::*;
 pub use instructions::*;
-pub use memory::*;

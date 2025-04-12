@@ -86,8 +86,8 @@ impl<F: PrimeField32> MachineAir<F> for AddSubChip {
         output.add_byte_lookup_events_from_maps(blu_batches.iter().collect_vec());
     }
 
-    fn included(&self, shard: &Self::Record) -> bool {
-        !shard.add_events.is_empty() || !shard.sub_events.is_empty()
+    fn included(&self, record: &Self::Record) -> bool {
+        !record.add_events.is_empty() || !record.sub_events.is_empty()
     }
 
     fn local_only(&self) -> bool {

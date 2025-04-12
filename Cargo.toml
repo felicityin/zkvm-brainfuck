@@ -20,11 +20,11 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
-bf-core-executor = { path = "crates/core/executor", version = "1.0.0" }
-bf-core-machine = { path = "crates/core/machine", version = "1.0.0" }
-bf-derive = { path = "crates/derive", version = "1.0.0" }
-bf-stark = { path = "crates/stark", version = "1.0.0" }
-bf-primitives = { path = "crates/primitives", version = "1.0.0" }
+bf-core-executor = { path = "crates/core/executor" }
+bf-core-machine = { path = "crates/core/machine" }
+bf-derive = { path = "crates/derive" }
+bf-stark = { path = "crates/stark" }
+bf-primitives = { path = "crates/primitives" }
 
 p3-air = { git = "https://github.com/zkMIPS/Plonky3" }
 p3-field = { git = "https://github.com/zkMIPS/Plonky3" }
@@ -59,4 +59,4 @@ hashbrown = "0.15.2"
 itertools = "0.14.0"
 
 # For testing.
-test-artifacts = { path = "crates/test-artifacts", version = "1.0.0" }
+test-artifacts = { path = "crates/test-artifacts" }

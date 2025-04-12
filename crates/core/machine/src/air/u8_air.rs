@@ -4,7 +4,7 @@ use bf_core_executor::ByteOpcode;
 use bf_stark::air::ByteAirBuilder;
 
 pub trait U8AirBuilder: ByteAirBuilder {
-    /// Check that each limb of the given slice is a u8.
+    /// Check that limb of the given slice is a u8.
     fn range_check_u8(
         &mut self,
         value: impl Into<Self::Expr> + Clone,

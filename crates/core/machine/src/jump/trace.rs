@@ -64,8 +64,8 @@ impl<F: PrimeField32> MachineAir<F> for JumpChip {
         RowMajorMatrix::new(values, NUM_JUMP_COLS)
     }
 
-    fn included(&self, shard: &Self::Record) -> bool {
-        !shard.jump_events.is_empty()
+    fn included(&self, record: &Self::Record) -> bool {
+        !record.jump_events.is_empty()
     }
 
     fn local_only(&self) -> bool {
