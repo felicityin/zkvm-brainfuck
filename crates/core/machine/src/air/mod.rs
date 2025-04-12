@@ -1,5 +1,7 @@
+mod program;
 mod u8_air;
 
+pub use program::*;
 pub use u8_air::*;
 
 use bf_stark::air::{BaseAirBuilder, BfAirBuilder};
