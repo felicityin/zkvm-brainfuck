@@ -40,20 +40,11 @@ where
         // Program constraints.
         builder.send_program(local.pc, local.instruction, local.is_real);
 
+        // Instruction constraints.
+        self.eval_instruction(builder, local);
+
         // Register constraints.
         self.eval_registers::<AB>(builder, local, clk.clone());
-
-        // builder.send_instruction(
-        //     local.pc,
-        //     local.next_pc,
-        //     local.instruction.opcode,
-        //     local.mv,
-        //     local.next_mv,
-        //     local.mp,
-        //     local.next_mp,
-        //     local.is_mv_immutable,
-        //     local.is_real,
-        // );
 
         // Check that the clk is updated correctly.
         self.eval_clk(builder, local, next, clk.clone());
@@ -77,13 +68,40 @@ impl CpuChip {
         &self,
         builder: &mut AB,
         local: &CpuCols<AB::Var>,
-        next: &CpuCols<AB::Var>,
-        clk: AB::Expr,
     ) {
-        // builder.send_alu();
-        // builder.send_jump();
-        // builder.send_memory();
-        // builder.send_io();
+        builder.send_alu(
+            local.pc,
+            local.instruction.opcode,
+            local.mv,
+            local.next_mv,
+            local.is_alu,
+        );
+
+        builder.send_jump(
+            local.pc,
+            local.next_pc,
+            local.instruction.opcode,
+            local.instruction.op_a.reduce::<AB>(),
+            local.mv,
+            local.is_jump,
+        );
+
+        builder.send_memory_instr(
+            local.pc,
+            local.next_pc,
+            local.instruction.opcode,
+            local.mv,
+            local.next_mv,
+            local.is_memory_instr,
+        );
+
+        builder.send_io(
+            local.pc,
+            local.next_pc,
+            local.instruction.opcode,
+            local.mv,
+            local.is_io,
+        );
     }
 
     /// Constraints related to the clk.

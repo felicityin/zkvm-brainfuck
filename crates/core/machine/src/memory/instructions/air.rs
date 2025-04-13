@@ -4,6 +4,7 @@ use p3_air::{Air, AirBuilder, BaseAir};
 use p3_field::FieldAlgebra;
 use p3_matrix::Matrix;
 
+use bf_core_executor::Opcode;
 use bf_stark::air::BfAirBuilder;
 
 use crate::operations::KoalaBearWordRangeChecker;
@@ -30,7 +31,7 @@ where
         let is_real = local.is_step_forward + local.is_step_backward;
         builder.assert_bool(local.is_step_forward);
         builder.assert_bool(local.is_step_backward);
-        builder.assert_bool(is_real);
+        builder.assert_bool(is_real.clone());
 
         builder.when(local.is_step_forward).assert_eq(
             local.next_mp.reduce::<AB>(),
@@ -59,13 +60,16 @@ where
             local.is_real.into(),
         );
 
-        // builder.receive_mem_instr(
-        //     local.clk,
-        //     local.pc,
-        //     opcode,
-        //     local.mp,
-        //     local.next_mp,
-        //     is_real,
-        // );
+        let opcode = local.is_step_forward * Opcode::MemStepForward.as_field::<AB::F>()
+            + local.is_step_backward * Opcode::MemStepBackward.as_field::<AB::F>();
+
+        builder.receive_memory_instr(
+            local.clk,
+            local.pc,
+            opcode,
+            local.mp.reduce::<AB>(),
+            local.next_mp.reduce::<AB>(),
+            is_real,
+        );
     }
 }

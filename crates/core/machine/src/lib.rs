@@ -1,6 +1,7 @@
 pub mod air;
 pub mod alu;
 pub mod cpu;
+pub mod io;
 pub mod jump;
 pub mod memory;
 pub mod program;

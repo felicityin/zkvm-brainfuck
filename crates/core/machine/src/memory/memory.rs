@@ -17,7 +17,7 @@ use bf_stark::{
 
 use crate::utils::{next_power_of_two, zeroed_f_vec};
 
-pub const NUM_MEMORY_ENTRIES_PER_ROW: usize = 4;
+pub const NUM_MEMORY_ENTRIES_PER_ROW: usize = 2;
 
 pub(crate) const NUM_MEMORY_INIT_COLS: usize = size_of::<MemCols<u8>>();
 
@@ -83,7 +83,7 @@ impl<F: PrimeField32> MachineAir<F> for MemoryChip {
         _output: &mut ExecutionRecord,
     ) -> RowMajorMatrix<F> {
         // Generate the trace rows for each event.
-        let nb_rows = (input.memory_access.len() + 3) / 4;
+        let nb_rows = (input.memory_access.len() + 1) / 2;
         let padded_nb_rows = next_power_of_two(nb_rows);
         let mut values = zeroed_f_vec(padded_nb_rows * NUM_MEMORY_INIT_COLS);
         let chunk_size = std::cmp::max((nb_rows + 1) / num_cpus::get(), 1);

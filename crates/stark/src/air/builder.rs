@@ -86,17 +86,15 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
     fn send_alu(
         &mut self,
         pc: impl Into<Self::Expr>,
-        next_pc: impl Into<Self::Expr>,
         opcode: impl Into<Self::Expr>,
-        a: impl Into<Self::Expr>,
-        b: impl Into<Self::Expr>,
+        next_mv: impl Into<Self::Expr>,
+        mv: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
         let values = once(pc.into())
-            .chain(once(next_pc.into()))
             .chain(once(opcode.into()))
-            .chain(once(a.into()))
-            .chain(once(b.into()))
+            .chain(once(next_mv.into()))
+            .chain(once(mv.into()))
             .collect();
 
         self.send(
@@ -108,17 +106,15 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
     fn receive_alu(
         &mut self,
         pc: impl Into<Self::Expr>,
-        next_pc: impl Into<Self::Expr>,
         opcode: impl Into<Self::Expr>,
-        a: impl Into<Self::Expr>,
-        b: impl Into<Self::Expr>,
+        next_mv: impl Into<Self::Expr>,
+        mv: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
         let values = once(pc.into())
-            .chain(once(next_pc.into()))
             .chain(once(opcode.into()))
-            .chain(once(a.into()))
-            .chain(once(b.into()))
+            .chain(once(next_mv.into()))
+            .chain(once(mv.into()))
             .collect();
 
         self.receive(
@@ -126,21 +122,21 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
         );
     }
 
-    /// Sends an Jump operation to be processed.
+    /// Sends a Jump operation to be processed.
     fn send_jump(
         &mut self,
         pc: impl Into<Self::Expr>,
         next_pc: impl Into<Self::Expr>,
         opcode: impl Into<Self::Expr>,
-        a: impl Into<Self::Expr>,
-        b: impl Into<Self::Expr>,
+        target_pc: impl Into<Self::Expr>,
+        mv: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
         let values = once(pc.into())
             .chain(once(next_pc.into()))
             .chain(once(opcode.into()))
-            .chain(once(a.into()))
-            .chain(once(b.into()))
+            .chain(once(target_pc.into()))
+            .chain(once(mv.into()))
             .collect();
 
         self.send(
@@ -148,25 +144,109 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
         );
     }
 
-    /// Receives an Jump operation to be processed.
+    /// Receives a Jump operation to be processed.
     fn receive_jump(
         &mut self,
         pc: impl Into<Self::Expr>,
         next_pc: impl Into<Self::Expr>,
         opcode: impl Into<Self::Expr>,
-        a: impl Into<Self::Expr>,
-        b: impl Into<Self::Expr>,
+        target_pc: impl Into<Self::Expr>,
+        mv: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
         let values = once(pc.into())
             .chain(once(next_pc.into()))
             .chain(once(opcode.into()))
-            .chain(once(a.into()))
-            .chain(once(b.into()))
+            .chain(once(target_pc.into()))
+            .chain(once(mv.into()))
             .collect();
 
         self.receive(
             AirLookup::new(values, multiplicity.into(), LookupKind::Jump),
+        );
+    }
+
+    /// Sends a memory pointer operation to be processed.
+    fn send_memory_instr(
+        &mut self,
+        pc: impl Into<Self::Expr>,
+        next_pc: impl Into<Self::Expr>,
+        opcode: impl Into<Self::Expr>,
+        mp: impl Into<Self::Expr>,
+        next_mp: impl Into<Self::Expr>,
+        multiplicity: impl Into<Self::Expr>,
+    ) {
+        let values = once(pc.into())
+            .chain(once(next_pc.into()))
+            .chain(once(opcode.into()))
+            .chain(once(mp.into()))
+            .chain(once(next_mp.into()))
+            .collect();
+
+        self.send(
+            AirLookup::new(values, multiplicity.into(), LookupKind::MemInstr),
+        );
+    }
+
+    /// Receives an ALU operation to be processed.
+    fn receive_memory_instr(
+        &mut self,
+        pc: impl Into<Self::Expr>,
+        next_pc: impl Into<Self::Expr>,
+        opcode: impl Into<Self::Expr>,
+        mp: impl Into<Self::Expr>,
+        next_mp: impl Into<Self::Expr>,
+        multiplicity: impl Into<Self::Expr>,
+    ) {
+        let values = once(pc.into())
+            .chain(once(next_pc.into()))
+            .chain(once(opcode.into()))
+            .chain(once(mp.into()))
+            .chain(once(next_mp.into()))
+            .collect();
+
+        self.receive(
+            AirLookup::new(values, multiplicity.into(), LookupKind::MemInstr),
+        );
+    }
+
+    /// Sends an ALU operation to be processed.
+    fn send_io(
+        &mut self,
+        pc: impl Into<Self::Expr>,
+        opcode: impl Into<Self::Expr>,
+        mp: impl Into<Self::Expr>,
+        mv: impl Into<Self::Expr>,
+        multiplicity: impl Into<Self::Expr>,
+    ) {
+        let values = once(pc.into())
+            .chain(once(opcode.into()))
+            .chain(once(mp.into()))
+            .chain(once(mv.into()))
+            .collect();
+
+        self.send(
+            AirLookup::new(values, multiplicity.into(), LookupKind::IO),
+        );
+    }
+
+    /// Receives an ALU operation to be processed.
+    fn receive_io(
+        &mut self,
+        pc: impl Into<Self::Expr>,
+        opcode: impl Into<Self::Expr>,
+        mp: impl Into<Self::Expr>,
+        mv: impl Into<Self::Expr>,
+        multiplicity: impl Into<Self::Expr>,
+    ) {
+        let values = once(pc.into())
+            .chain(once(opcode.into()))
+            .chain(once(mp.into()))
+            .chain(once(mv.into()))
+            .collect();
+
+        self.receive(
+            AirLookup::new(values, multiplicity.into(), LookupKind::IO),
         );
     }
 }

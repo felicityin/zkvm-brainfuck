@@ -63,12 +63,6 @@ pub struct CpuCols<T: Copy> {
     pub is_real: T,
 }
 
-// /// Creates the column map for the CPU.
-// const fn make_col_map() -> CpuCols<usize> {
-//     let indices_arr = indices_arr::<NUM_CPU_COLS>();
-//     unsafe { transmute::<[usize; NUM_CPU_COLS], CpuCols<usize>>(indices_arr) }
-// }
-
 impl<T: Copy> CpuCols<T> {
     /// Gets the value of mv.
     pub fn mv_val(&self) -> T {

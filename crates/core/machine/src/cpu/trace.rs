@@ -100,6 +100,8 @@ impl CpuChip {
         cols.pc = F::from_canonical_u32(event.pc);
         cols.next_pc = F::from_canonical_u32(event.next_pc);
         cols.instruction.populate(instruction);
+        cols.mp = F::from_canonical_u32(event.mp);
+        cols.next_mp = F::from_canonical_u32(event.next_mp);
 
         cols.mv = F::from_canonical_u8(event.mv);
         *cols.mv_access.value_mut() = cols.mv;

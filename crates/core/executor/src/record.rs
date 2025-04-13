@@ -24,6 +24,8 @@ pub struct ExecutionRecord {
     pub sub_events: Vec<AluEvent>,
     /// A trace of the jump events.
     pub jump_events: Vec<JumpEvent>,
+    /// A trace of the i/o events.
+    pub io_events: Vec<IoEvent>,
     /// A trace of the memory instructions.
     pub memory_instr_events: Vec<MemInstrEvent>,
     /// A trace of the memory events.

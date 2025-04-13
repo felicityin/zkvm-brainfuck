@@ -110,9 +110,10 @@ impl Executor {
     #[allow(clippy::too_many_lines)]
     fn execute_instruction(&mut self, instruction: &Instruction) -> Result<(), ExecutionError> {
         let mut next_pc = self.state.pc.wrapping_add(1);
-        let mut dst: u32 = 0;
+        let mut jmp_dst: u32 = 0;
         let mut next_mv: u8 = 0;
         let mv: u8;
+        let mp = self.state.mem_ptr;
 
         // Execute the instruction.
         match instruction.opcode {
@@ -120,7 +121,7 @@ impl Executor {
             Opcode::Add | Opcode::Sub => (next_mv, mv) = self.execute_alu(instruction),
             Opcode::LoopStart | Opcode::LoopEnd => {
                 (mv, next_pc) = self.execute_jump(instruction);
-                dst = next_pc;
+                jmp_dst = next_pc;
             }
             Opcode::Input | Opcode::Output => mv = self.execute_io(instruction),
         }
@@ -128,7 +129,8 @@ impl Executor {
         self.emit_events(
             next_pc,
             instruction,
-            dst,
+            jmp_dst,
+            mp,
             next_mv,
             mv,
             self.memory_accesses,
@@ -213,27 +215,32 @@ impl Executor {
         next_pc: u32,
         instruction: &Instruction,
         jmp_dst: u32,
+        mp: u32,
         next_mv: u8,
         mv: u8,
         memory_access: MemoryAccessRecord,
     ) {
-        // self.record.cpu_events.push(CpuEvent {
-        //     clk: self.state.clk,
-        //     pc: self.state.pc,
-        //     next_pc,
-        //     jmp_dst,
-        //     mp,
-        //     next_mp,
-        //     next_mv,
-        //     mv,
-        //     dst_access: memory_access.dst,
-        //     src_access: memory_access.src,
-        // });
+        self.record.cpu_events.push(CpuEvent {
+            clk: self.state.clk,
+            pc: self.state.pc,
+            next_pc,
+            mp,
+            next_mp: self.state.mem_ptr,
+            next_mv,
+            mv,
+            dst_access: memory_access.dst,
+            src_access: memory_access.src,
+        });
 
-        if instruction.opcode == Opcode::Add || instruction.opcode == Opcode::Sub {
-            self.record.add_events.push(AluEvent::new(self.state.pc, instruction.opcode, next_mv, mv));
+        if instruction.is_alu_instruction() {
+            self.record.add_events.push(AluEvent::new(
+                self.state.pc,
+                instruction.opcode,
+                next_mv,
+                mv,
+            ));
         }
-        if instruction.opcode == Opcode::LoopStart || instruction.opcode == Opcode::LoopEnd {
+        if instruction.is_jump_instruction() {
             self.record.jump_events.push(JumpEvent::new(
                 self.state.pc,
                 next_pc,
@@ -242,15 +249,23 @@ impl Executor {
                 mv,
             ));
         }
-        // if instruction.opcode == Opcode::MemStepForward || instruction.opcode == Opcode::MemStepBackward {
-        //     self.record.memory_instr_events.push(MemInstrEvent::new(
-        //         self.state.clk,
-        //         self.state.pc,
-        //         instruction.opcode,
-        //         self.state.mem_ptr,
-        //         next_mp,
-        //     ));
-        // }
+        if instruction.is_memory_instruction() {
+            self.record.memory_instr_events.push(MemInstrEvent::new(
+                self.state.clk,
+                self.state.pc,
+                instruction.opcode,
+                mp,
+                self.state.mem_ptr,
+            ));
+        }
+        if instruction.is_io_instruction() {
+            self.record.io_events.push(IoEvent::new(
+                self.state.pc,
+                instruction.opcode,
+                mp,
+                mv,
+            ));
+        }
     }
 
     /// Read the memory register.

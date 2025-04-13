@@ -29,30 +29,20 @@ pub enum LookupKind {
     /// Lookup with the Jump operations.
     Jump = 4,
 
+    /// Lookup with the Memory operations.
+    MemInstr = 5,
+
+    /// Lookup with the I/O operations.
+    IO = 6,
+
     /// Lookup with the byte lookup table for byte operations.
-    Byte = 5,
+    Byte = 7,
 
     /// Requesting a range check for a given value and range.
-    Range = 6,
+    Range = 8,
 
     /// Lookup with the field op table for field operations.
-    Field = 7,
-}
-
-impl LookupKind {
-    /// Returns all kinds of lookups.
-    #[must_use]
-    pub fn all_kinds() -> Vec<LookupKind> {
-        vec![
-            LookupKind::Memory,
-            LookupKind::Program,
-            LookupKind::Alu,
-            LookupKind::Jump,
-            LookupKind::Byte,
-            LookupKind::Range,
-            LookupKind::Field,
-        ]
-    }
+    Field = 9,
 }
 
 impl<F: Field> Lookup<F> {
@@ -86,6 +76,8 @@ impl Display for LookupKind {
             LookupKind::Program => write!(f, "Program"),
             LookupKind::Alu => write!(f, "Alu"),
             LookupKind::Jump => write!(f, "Jump"),
+            LookupKind::MemInstr => write!(f, "MemInstr"),
+            LookupKind::IO => write!(f, "I/O"),
             LookupKind::Byte => write!(f, "Byte"),
             LookupKind::Range => write!(f, "Range"),
             LookupKind::Field => write!(f, "Field"),
