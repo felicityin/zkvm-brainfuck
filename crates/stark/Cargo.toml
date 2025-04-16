@@ -25,12 +25,18 @@ p3-symmetric = { workspace = true  }
 
 arrayref = "0.3.8"
 rand = { workspace = true }
+rayon-scan = "0.1.1"
 itertools = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["std", "env-filter"] }
 tracing-forest = { workspace = true, features = ["ansi", "smallvec"] }
 serde = { workspace = true }
+strum = "0.26.3"
+strum_macros = "0.26.4"
 hashbrown = { version = "0.15.2", features = ["serde", "inline-more"] }
+num-bigint = { version = "0.4.3", default-features = false }
+num-traits = "0.2.19"
+sysinfo = "0.30.13"
 
 bf-derive = { workspace = true }
 bf-primitives = { workspace = true }

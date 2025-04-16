@@ -134,11 +134,15 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
         self.send_byte(
             Self::Expr::from_canonical_u8(ByteOpcode::U16Range as u8),
             limb_16,
+            Self::Expr::ZERO,
+            Self::Expr::ZERO,
             do_check.clone(),
         );
 
         self.send_byte(
             Self::Expr::from_canonical_u8(ByteOpcode::U8Range as u8),
+            Self::Expr::ZERO,
+            Self::Expr::ZERO,
             limb_8,
             do_check,
         )

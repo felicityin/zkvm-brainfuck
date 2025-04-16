@@ -83,7 +83,7 @@ impl<F: PrimeField32> MachineAir<F> for MemoryChip {
         _output: &mut ExecutionRecord,
     ) -> RowMajorMatrix<F> {
         // Generate the trace rows for each event.
-        let nb_rows = (input.memory_access.len() + 1) / 2;
+        let nb_rows = (input.cpu_memory_access.len() + 1) / 2;
         let padded_nb_rows = next_power_of_two(nb_rows);
         let mut values = zeroed_f_vec(padded_nb_rows * NUM_MEMORY_INIT_COLS);
         let chunk_size = std::cmp::max((nb_rows + 1) / num_cpus::get(), 1);
@@ -98,8 +98,8 @@ impl<F: PrimeField32> MachineAir<F> for MemoryChip {
                     let cols: &mut MemCols<F> = row.borrow_mut();
                     for k in 0..NUM_MEMORY_ENTRIES_PER_ROW {
                         let cols = &mut cols.memory_entries[k];
-                        if idx + k < input.memory_access.len() {
-                            let event = &input.memory_access[idx + k];
+                        if idx + k < input.cpu_memory_access.len() {
+                            let event = &input.cpu_memory_access[idx + k];
                             cols.addr = F::from_canonical_u32(event.addr);
                             cols.initial_clk =
                                 F::from_canonical_u32(event.initial_mem_access.timestamp);
@@ -117,7 +117,7 @@ impl<F: PrimeField32> MachineAir<F> for MemoryChip {
     }
 
     fn included(&self, shard: &Self::Record) -> bool {
-        !shard.memory_access.is_empty()
+        !shard.cpu_memory_access.is_empty()
     }
 }
 

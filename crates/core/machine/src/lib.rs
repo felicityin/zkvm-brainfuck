@@ -1,5 +1,7 @@
 pub mod air;
 pub mod alu;
+pub mod bytes;
+pub mod bf;
 pub mod cpu;
 pub mod io;
 pub mod jump;

@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use p3_field::{FieldAlgebra, PrimeField};
 use hashbrown::HashMap;
 
+use bf_stark::air::MachineAir;
 use bf_stark::MachineRecord;
 
 use crate::program::Program;
@@ -29,7 +30,7 @@ pub struct ExecutionRecord {
     /// A trace of the memory instructions.
     pub memory_instr_events: Vec<MemInstrEvent>,
     /// A trace of the memory events.
-    pub memory_access: Vec<MemoryEvent>,
+    pub cpu_memory_access: Vec<MemoryEvent>,
     /// A trace of the byte lookups that are needed.
     pub byte_lookups: HashMap<ByteLookupEvent, usize>,
 }
@@ -69,4 +70,21 @@ impl ByteRecord for ExecutionRecord {
     }
 }
 
-impl MachineRecord for ExecutionRecord {}
+impl MachineRecord for ExecutionRecord {
+    fn append(&mut self, other: &mut ExecutionRecord) {
+        self.cpu_events.append(&mut other.cpu_events);
+        self.add_events.append(&mut other.add_events);
+        self.sub_events.append(&mut other.sub_events);
+        self.jump_events.append(&mut other.jump_events);
+        self.io_events.append(&mut other.io_events);
+        self.memory_instr_events.append(&mut other.memory_instr_events);
+
+        if self.byte_lookups.is_empty() {
+            self.byte_lookups = std::mem::take(&mut other.byte_lookups);
+        } else {
+            self.add_byte_lookup_events_from_maps(vec![&other.byte_lookups]);
+        }
+
+        self.cpu_memory_access.append(&mut other.cpu_memory_access);
+    }
+}

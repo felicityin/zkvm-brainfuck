@@ -37,15 +37,15 @@ use bf_stark::{
     // ZKMCoreOpts,
 };
 
-// #[derive(Error, Debug)]
-// pub enum ZKMCoreProverError {
-//     #[error("failed to execute program: {0}")]
-//     ExecutionError(ExecutionError),
-//     #[error("io error: {0}")]
-//     IoError(io::Error),
-//     #[error("serialization error: {0}")]
-//     SerializationError(bincode::Error),
-// }
+#[derive(Error, Debug)]
+pub enum BfCoreProverError {
+    #[error("failed to execute program: {0}")]
+    ExecutionError(ExecutionError),
+    #[error("io error: {0}")]
+    IoError(io::Error),
+    #[error("serialization error: {0}")]
+    SerializationError(bincode::Error),
+}
 
 // pub fn prove_simple<SC: StarkGenericConfig, P: MachineProver<SC, MipsAir<SC::Val>>>(
 //     config: SC,

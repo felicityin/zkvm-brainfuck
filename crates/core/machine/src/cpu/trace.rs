@@ -162,9 +162,11 @@ impl CpuChip {
         cols.clk_16bit_limb = F::from_canonical_u16(clk_16bit_limb);
         cols.clk_8bit_limb = F::from_canonical_u8(clk_8bit_limb);
 
-        blu_events.add_byte_lookup_event(ByteLookupEvent::new(U16Range, clk_16bit_limb, 0));
+        blu_events.add_byte_lookup_event(ByteLookupEvent::new(U16Range, clk_16bit_limb, 0, 0, 0));
         blu_events.add_byte_lookup_event(ByteLookupEvent::new(
             ByteOpcode::U8Range,
+            0,
+            0,
             0,
             clk_8bit_limb as u8,
         ));

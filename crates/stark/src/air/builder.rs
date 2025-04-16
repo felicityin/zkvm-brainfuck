@@ -1,6 +1,6 @@
 use std::iter::once;
 
-use p3_air::{AirBuilder, AirBuilderWithPublicValues, FilteredAirBuilder, PermutationAirBuilder};
+use p3_air::{AirBuilder, FilteredAirBuilder, PermutationAirBuilder};
 use p3_field::{Field, FieldAlgebra};
 use p3_uni_stark::{
     ProverConstraintFolder, StarkGenericConfig, SymbolicAirBuilder, VerifierConstraintFolder,
@@ -51,12 +51,14 @@ pub trait ByteAirBuilder: BaseAirBuilder {
     fn send_byte(
         &mut self,
         opcode: impl Into<Self::Expr>,
-        value: impl Into<Self::Expr>,
+        a: impl Into<Self::Expr>,
+        b: impl Into<Self::Expr>,
+        c: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
         self.send(
             AirLookup::new(
-                vec![opcode.into(), value.into()],
+                vec![opcode.into(), a.into(), b.into(), c.into()],
                 multiplicity.into(),
                 LookupKind::Byte,
             ),
@@ -67,12 +69,14 @@ pub trait ByteAirBuilder: BaseAirBuilder {
     fn receive_byte(
         &mut self,
         opcode: impl Into<Self::Expr>,
-        value: impl Into<Self::Expr>,
+        a: impl Into<Self::Expr>,
+        b: impl Into<Self::Expr>,
+        c: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
         self.receive(
             AirLookup::new(
-                vec![opcode.into(), value.into()],
+                vec![opcode.into(), a.into(), b.into(), c.into()],
                 multiplicity.into(),
                 LookupKind::Byte,
             ),
@@ -258,6 +262,15 @@ impl<AB: EmptyMessageBuilder, M> MessageBuilder<M> for AB {
     fn send(&mut self, _message: M) {}
 
     fn receive(&mut self, _message: M) {}
+}
+
+/// A builder that implements a permutation argument.
+pub trait MultiTableAirBuilder<'a>: PermutationAirBuilder {
+    /// The type of the cumulative sum.
+    type Sum: Into<Self::ExprEF> + Copy;
+
+    /// Returns the cumulative sum of the permutation.
+    fn cumulative_sum(&self) -> &'a Self::Sum;
 }
 
 /// A trait that contains the common helper methods for building machine AIRs.

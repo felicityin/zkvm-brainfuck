@@ -77,7 +77,7 @@ impl Executor {
         while !self.execute_cycle()? {}
 
         for (_, event) in self.memory_events.drain() {
-            self.record.memory_access.push(event);
+            self.record.cpu_memory_access.push(event);
         }
 
         Ok(())

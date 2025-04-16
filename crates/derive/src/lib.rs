@@ -152,54 +152,54 @@ pub fn machine_air_derive(input: TokenStream) -> TokenStream {
             let name_arms = variants.iter().map(|(variant_name, field)| {
                 let field_ty = &field.ty;
                 quote! {
-                    #name::#variant_name(x) => <#field_ty as zkm2_stark::air::MachineAir<F>>::name(x)
+                    #name::#variant_name(x) => <#field_ty as bf_stark::air::MachineAir<F>>::name(x)
                 }
             });
 
             let preprocessed_width_arms = variants.iter().map(|(variant_name, field)| {
                 let field_ty = &field.ty;
                 quote! {
-                    #name::#variant_name(x) => <#field_ty as zkm2_stark::air::MachineAir<F>>::preprocessed_width(x)
+                    #name::#variant_name(x) => <#field_ty as bf_stark::air::MachineAir<F>>::preprocessed_width(x)
                 }
             });
 
             let generate_preprocessed_trace_arms = variants.iter().map(|(variant_name, field)| {
                 let field_ty = &field.ty;
                 quote! {
-                    #name::#variant_name(x) => <#field_ty as zkm2_stark::air::MachineAir<F>>::generate_preprocessed_trace(x, program)
+                    #name::#variant_name(x) => <#field_ty as bf_stark::air::MachineAir<F>>::generate_preprocessed_trace(x, program)
                 }
             });
 
             let generate_trace_arms = variants.iter().map(|(variant_name, field)| {
                 let field_ty = &field.ty;
                 quote! {
-                    #name::#variant_name(x) => <#field_ty as zkm2_stark::air::MachineAir<F>>::generate_trace(x, input, output)
+                    #name::#variant_name(x) => <#field_ty as bf_stark::air::MachineAir<F>>::generate_trace(x, input, output)
                 }
             });
 
             let generate_dependencies_arms = variants.iter().map(|(variant_name, field)| {
                 let field_ty = &field.ty;
                 quote! {
-                    #name::#variant_name(x) => <#field_ty as zkm2_stark::air::MachineAir<F>>::generate_dependencies(x, input, output)
+                    #name::#variant_name(x) => <#field_ty as bf_stark::air::MachineAir<F>>::generate_dependencies(x, input, output)
                 }
             });
 
             let included_arms = variants.iter().map(|(variant_name, field)| {
                 let field_ty = &field.ty;
                 quote! {
-                    #name::#variant_name(x) => <#field_ty as zkm2_stark::air::MachineAir<F>>::included(x, shard)
+                    #name::#variant_name(x) => <#field_ty as bf_stark::air::MachineAir<F>>::included(x, shard)
                 }
             });
 
             let local_only_arms = variants.iter().map(|(variant_name, field)| {
                 let field_ty = &field.ty;
                 quote! {
-                    #name::#variant_name(x) => <#field_ty as zkm2_stark::air::MachineAir<F>>::local_only(x)
+                    #name::#variant_name(x) => <#field_ty as bf_stark::air::MachineAir<F>>::local_only(x)
                 }
             });
 
             let machine_air = quote! {
-                impl #impl_generics zkm2_stark::air::MachineAir<F> for #name #ty_generics #where_clause {
+                impl #impl_generics bf_stark::air::MachineAir<F> for #name #ty_generics #where_clause {
                     type Record = #execution_record_path;
 
                     type Program = #program_path;
@@ -315,7 +315,7 @@ fn find_execution_record_path(attrs: &[syn::Attribute]) -> syn::Path {
             }
         }
     }
-    parse_quote!(zkm2_core_executor::ExecutionRecord)
+    parse_quote!(bf_core_executor::ExecutionRecord)
 }
 
 fn find_program_path(attrs: &[syn::Attribute]) -> syn::Path {
@@ -330,7 +330,7 @@ fn find_program_path(attrs: &[syn::Attribute]) -> syn::Path {
             }
         }
     }
-    parse_quote!(zkm2_core_executor::Program)
+    parse_quote!(bf_core_executor::Program)
 }
 
 fn find_builder_path(attrs: &[syn::Attribute]) -> syn::Path {
@@ -345,7 +345,7 @@ fn find_builder_path(attrs: &[syn::Attribute]) -> syn::Path {
             }
         }
     }
-    parse_quote!(crate::air::ZKMCoreAirBuilder<F = F>)
+    parse_quote!(crate::air::BfCoreAirBuilder<F = F>)
 }
 
 fn find_eval_trait_bound(attrs: &[syn::Attribute]) -> Option<String> {

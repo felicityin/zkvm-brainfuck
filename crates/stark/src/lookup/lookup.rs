@@ -45,6 +45,24 @@ pub enum LookupKind {
     Field = 9,
 }
 
+impl LookupKind {
+    /// Returns all kinds of lookups.
+    #[must_use]
+    pub fn all_kinds() -> Vec<LookupKind> {
+        vec![
+            LookupKind::Memory,
+            LookupKind::Program,
+            LookupKind::Alu,
+            LookupKind::Jump,
+            LookupKind::MemInstr,
+            LookupKind::IO,
+            LookupKind::Byte,
+            LookupKind::Range,
+            LookupKind::Field,
+        ]
+    }
+}
+
 impl<F: Field> Lookup<F> {
     /// Create a new lookup.
     pub const fn new(
