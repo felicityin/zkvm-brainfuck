@@ -81,9 +81,7 @@ impl<F: Field> Lookup<F> {
 
 impl<F: Field> Debug for Lookup<F> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Lookup")
-            .field("kind", &self.kind)
-            .finish_non_exhaustive()
+        f.debug_struct("Lookup").field("kind", &self.kind).finish_non_exhaustive()
     }
 }
 

@@ -61,10 +61,7 @@ pub fn pad_to_power_of_two<const N: usize, T: Clone + Default>(values: &mut Vec<
 // pad the rows using `row_fn` to create the padded rows. The padding will be to the next power of
 // of two of `size_log_2` is `None`, or to the specified `size_log_2` if it is not `None`. The
 // function will panic of the number of rows is larger than the specified `size_log2`
-pub fn pad_rows_fixed<R: Clone>(
-    rows: &mut Vec<R>,
-    row_fn: impl Fn() -> R,
-) {
+pub fn pad_rows_fixed<R: Clone>(rows: &mut Vec<R>, row_fn: impl Fn() -> R) {
     let nb_rows = rows.len();
     let dummy_row = row_fn();
     rows.resize(next_power_of_two(nb_rows), dummy_row);

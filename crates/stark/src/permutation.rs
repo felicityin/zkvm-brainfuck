@@ -7,10 +7,7 @@ use p3_matrix::{dense::RowMajorMatrix, Matrix};
 use p3_maybe_rayon::prelude::*;
 use rayon_scan::ScanParallelIterator;
 
-use crate::{
-    air::MultiTableAirBuilder,
-    lookup::Lookup,
-};
+use crate::{air::MultiTableAirBuilder, lookup::Lookup};
 
 /// Computes the width of the permutation trace.
 #[inline]
@@ -83,8 +80,7 @@ pub fn generate_permutation_trace<F: PrimeField, EF: ExtensionField<F>>(
     random_elements: &[EF],
     batch_size: usize,
 ) -> (RowMajorMatrix<EF>, EF) {
-    let permutation_trace_width =
-        permutation_trace_width(sends.len() + receives.len(), batch_size);
+    let permutation_trace_width = permutation_trace_width(sends.len() + receives.len(), batch_size);
 
     let height = main.height();
     // let permutation_trace_width = grouped_widths.values().sum::<usize>();
@@ -169,8 +165,7 @@ pub fn eval_permutation_constraints<'a, F, AB>(
     AB: MultiTableAirBuilder<'a, F = F> + PairBuilder,
     AB: 'a,
 {
-    let permutation_width =
-        permutation_trace_width(sends.len() + receives.len(), batch_size);
+    let permutation_width = permutation_trace_width(sends.len() + receives.len(), batch_size);
 
     // Get the permutation challenges.
     let permutation_challenges = builder.permutation_randomness();
@@ -247,9 +242,7 @@ pub fn eval_permutation_constraints<'a, F, AB>(
 
             // Calculate the product of all but the current rlc.
             let mut all_but_current = AB::ExprEF::ONE;
-            for other_rlc in
-                rlcs.iter().enumerate().filter(|(j, _)| i != *j).map(|(_, rlc)| rlc)
-            {
+            for other_rlc in rlcs.iter().enumerate().filter(|(j, _)| i != *j).map(|(_, rlc)| rlc) {
                 all_but_current = all_but_current.clone() * other_rlc.clone();
             }
             numerator = numerator.clone() + AB::ExprEF::from_base(m) * all_but_current;
@@ -261,14 +254,10 @@ pub fn eval_permutation_constraints<'a, F, AB>(
     }
 
     // Compute the running local and next permutation sums.
-    let sum_local = perm_local[..permutation_width - 1]
-        .iter()
-        .map(|x| (*x).into())
-        .sum::<AB::ExprEF>();
-    let sum_next = perm_next[..permutation_width - 1]
-        .iter()
-        .map(|x| (*x).into())
-        .sum::<AB::ExprEF>();
+    let sum_local =
+        perm_local[..permutation_width - 1].iter().map(|x| (*x).into()).sum::<AB::ExprEF>();
+    let sum_next =
+        perm_next[..permutation_width - 1].iter().map(|x| (*x).into()).sum::<AB::ExprEF>();
     let phi_local: AB::ExprEF = (*perm_local.last().unwrap()).into();
     let phi_next: AB::ExprEF = (*perm_next.last().unwrap()).into();
 

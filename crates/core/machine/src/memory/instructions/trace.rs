@@ -12,11 +12,11 @@ use bf_core_executor::{
 };
 use bf_stark::air::MachineAir;
 
-use crate::utils::{next_power_of_two, zeroed_f_vec};
 use super::{
     cols::{MemoryInstructionsCols, NUM_MEMORY_INSTRUCTIONS_COLS},
     MemoryInstructionsChip,
 };
+use crate::utils::{next_power_of_two, zeroed_f_vec};
 
 impl<F: PrimeField32> MachineAir<F> for MemoryInstructionsChip {
     type Record = ExecutionRecord;
@@ -38,7 +38,8 @@ impl<F: PrimeField32> MachineAir<F> for MemoryInstructionsChip {
         output: &mut ExecutionRecord,
     ) -> RowMajorMatrix<F> {
         let chunk_size = std::cmp::max((input.memory_instr_events.len()) / num_cpus::get(), 1);
-        let padded_nb_rows = <MemoryInstructionsChip as MachineAir<F>>::num_rows(self, input).unwrap();
+        let padded_nb_rows =
+            <MemoryInstructionsChip as MachineAir<F>>::num_rows(self, input).unwrap();
         let mut values = zeroed_f_vec(padded_nb_rows * NUM_MEMORY_INSTRUCTIONS_COLS);
 
         let blu_events: Vec<HashMap<ByteLookupEvent, usize>> = values
@@ -47,17 +48,15 @@ impl<F: PrimeField32> MachineAir<F> for MemoryInstructionsChip {
             .par_bridge()
             .map(|(i, rows)| {
                 let mut blu: HashMap<ByteLookupEvent, usize> = HashMap::new();
-                rows.chunks_mut(NUM_MEMORY_INSTRUCTIONS_COLS).enumerate().for_each(
-                    |(j, row)| {
-                        let idx = i * chunk_size + j;
-                        let cols: &mut MemoryInstructionsCols<F> = row.borrow_mut();
+                rows.chunks_mut(NUM_MEMORY_INSTRUCTIONS_COLS).enumerate().for_each(|(j, row)| {
+                    let idx = i * chunk_size + j;
+                    let cols: &mut MemoryInstructionsCols<F> = row.borrow_mut();
 
-                        if idx < input.memory_instr_events.len() {
-                            let event = &input.memory_instr_events[idx];
-                            self.event_to_row(event, cols, &mut blu);
-                        }
-                    },
-                );
+                    if idx < input.memory_instr_events.len() {
+                        let event = &input.memory_instr_events[idx];
+                        self.event_to_row(event, cols, &mut blu);
+                    }
+                });
                 blu
             })
             .collect::<Vec<_>>();

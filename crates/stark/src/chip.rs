@@ -6,13 +6,13 @@ use p3_matrix::dense::RowMajorMatrix;
 use p3_uni_stark::{get_max_constraint_degree, SymbolicAirBuilder};
 use p3_util::log2_ceil_usize;
 
-use crate::{
-    air::{MachineAir, MultiTableAirBuilder, BfAirBuilder},
-    lookup::{Lookup, LookupBuilder, LookupKind},
-};
 use super::{
-    eval_permutation_constraints, generate_permutation_trace, PROOF_MAX_NUM_PVS,
-    permutation_trace_width,
+    eval_permutation_constraints, generate_permutation_trace, permutation_trace_width,
+    PROOF_MAX_NUM_PVS,
+};
+use crate::{
+    air::{BfAirBuilder, MachineAir, MultiTableAirBuilder},
+    lookup::{Lookup, LookupBuilder, LookupKind},
 };
 
 /// An Air that encodes lookups based on lookups.
@@ -138,10 +138,7 @@ where
     /// Returns the width of the permutation trace.
     #[inline]
     pub fn permutation_width(&self) -> usize {
-        permutation_trace_width(
-            self.sends().len() + self.receives().len(),
-            self.logup_batch_size(),
-        )
+        permutation_trace_width(self.sends().len() + self.receives().len(), self.logup_batch_size())
     }
 
     /// Returns the cost of a row in the chip.

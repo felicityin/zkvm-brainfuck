@@ -21,12 +21,7 @@ impl AluEvent {
     /// Create a new [`AluEvent`].
     #[must_use]
     pub fn new(pc: u32, opcode: Opcode, mv_next: u8, mv: u8) -> Self {
-        Self {
-            pc,
-            opcode,
-            mv_next,
-            mv
-        }
+        Self { pc, opcode, mv_next, mv }
     }
 }
 
@@ -52,13 +47,7 @@ impl JumpEvent {
     /// Create a new [`JumpEvent`].
     #[must_use]
     pub fn new(pc: u32, next_pc: u32, opcode: Opcode, dst: u32, mv: u8) -> Self {
-        Self {
-            pc,
-            next_pc,
-            opcode,
-            dst,
-            mv
-        }
+        Self { pc, next_pc, opcode, dst, mv }
     }
 }
 
@@ -83,13 +72,7 @@ pub struct MemInstrEvent {
 impl MemInstrEvent {
     /// Create a new [`MemInstrEvent`].
     #[must_use]
-    pub fn new(
-        clk: u32,
-        pc: u32,
-        opcode: Opcode,
-        mp: u32,
-        next_mp: u32,
-    ) -> Self {
+    pub fn new(clk: u32, pc: u32, opcode: Opcode, mp: u32, next_mp: u32) -> Self {
         Self { clk, pc, opcode, mp, next_mp }
     }
 }

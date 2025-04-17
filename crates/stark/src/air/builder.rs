@@ -6,8 +6,8 @@ use p3_uni_stark::{
     ProverConstraintFolder, StarkGenericConfig, SymbolicAirBuilder, VerifierConstraintFolder,
 };
 
-use crate::lookup::LookupKind;
 use super::lookup::AirLookup;
+use crate::lookup::LookupKind;
 
 /// The default increment for the program counter. Is used for all instructions except
 /// for jumps.
@@ -56,13 +56,11 @@ pub trait ByteAirBuilder: BaseAirBuilder {
         c: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
-        self.send(
-            AirLookup::new(
-                vec![opcode.into(), a.into(), b.into(), c.into()],
-                multiplicity.into(),
-                LookupKind::Byte,
-            ),
-        );
+        self.send(AirLookup::new(
+            vec![opcode.into(), a.into(), b.into(), c.into()],
+            multiplicity.into(),
+            LookupKind::Byte,
+        ));
     }
 
     /// Receives a byte operation to be processed.
@@ -74,13 +72,11 @@ pub trait ByteAirBuilder: BaseAirBuilder {
         c: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
-        self.receive(
-            AirLookup::new(
-                vec![opcode.into(), a.into(), b.into(), c.into()],
-                multiplicity.into(),
-                LookupKind::Byte,
-            ),
-        );
+        self.receive(AirLookup::new(
+            vec![opcode.into(), a.into(), b.into(), c.into()],
+            multiplicity.into(),
+            LookupKind::Byte,
+        ));
     }
 }
 
@@ -101,9 +97,7 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
             .chain(once(mv.into()))
             .collect();
 
-        self.send(
-            AirLookup::new(values, multiplicity.into(), LookupKind::Alu),
-        );
+        self.send(AirLookup::new(values, multiplicity.into(), LookupKind::Alu));
     }
 
     /// Receives an ALU operation to be processed.
@@ -121,9 +115,7 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
             .chain(once(mv.into()))
             .collect();
 
-        self.receive(
-            AirLookup::new(values, multiplicity.into(), LookupKind::Alu),
-        );
+        self.receive(AirLookup::new(values, multiplicity.into(), LookupKind::Alu));
     }
 
     /// Sends a Jump operation to be processed.
@@ -143,9 +135,7 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
             .chain(once(mv.into()))
             .collect();
 
-        self.send(
-            AirLookup::new(values, multiplicity.into(), LookupKind::Jump),
-        );
+        self.send(AirLookup::new(values, multiplicity.into(), LookupKind::Jump));
     }
 
     /// Receives a Jump operation to be processed.
@@ -165,9 +155,7 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
             .chain(once(mv.into()))
             .collect();
 
-        self.receive(
-            AirLookup::new(values, multiplicity.into(), LookupKind::Jump),
-        );
+        self.receive(AirLookup::new(values, multiplicity.into(), LookupKind::Jump));
     }
 
     /// Sends a memory pointer operation to be processed.
@@ -187,9 +175,7 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
             .chain(once(next_mp.into()))
             .collect();
 
-        self.send(
-            AirLookup::new(values, multiplicity.into(), LookupKind::MemInstr),
-        );
+        self.send(AirLookup::new(values, multiplicity.into(), LookupKind::MemInstr));
     }
 
     /// Receives an ALU operation to be processed.
@@ -209,9 +195,7 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
             .chain(once(next_mp.into()))
             .collect();
 
-        self.receive(
-            AirLookup::new(values, multiplicity.into(), LookupKind::MemInstr),
-        );
+        self.receive(AirLookup::new(values, multiplicity.into(), LookupKind::MemInstr));
     }
 
     /// Sends an ALU operation to be processed.
@@ -229,9 +213,7 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
             .chain(once(mv.into()))
             .collect();
 
-        self.send(
-            AirLookup::new(values, multiplicity.into(), LookupKind::IO),
-        );
+        self.send(AirLookup::new(values, multiplicity.into(), LookupKind::IO));
     }
 
     /// Receives an ALU operation to be processed.
@@ -249,9 +231,7 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
             .chain(once(mv.into()))
             .collect();
 
-        self.receive(
-            AirLookup::new(values, multiplicity.into(), LookupKind::IO),
-        );
+        self.receive(AirLookup::new(values, multiplicity.into(), LookupKind::IO));
     }
 }
 

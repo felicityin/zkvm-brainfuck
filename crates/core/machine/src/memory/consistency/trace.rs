@@ -8,12 +8,9 @@ use super::{MemoryAccessCols, MemoryReadCols, MemoryReadWriteCols, MemoryWriteCo
 
 impl<F: PrimeField32> MemoryWriteCols<F> {
     pub fn populate(&mut self, record: MemoryWriteRecord, output: &mut impl ByteRecord) {
-        let current_record =
-            MemoryRecord { value: record.value, timestamp: record.timestamp };
-        let prev_record = MemoryRecord {
-            value: record.prev_value,
-            timestamp: record.prev_timestamp,
-        };
+        let current_record = MemoryRecord { value: record.value, timestamp: record.timestamp };
+        let prev_record =
+            MemoryRecord { value: record.prev_value, timestamp: record.prev_timestamp };
         self.prev_value = F::from_canonical_u8(prev_record.value);
         self.access.populate_access(current_record, prev_record, output);
     }
@@ -21,12 +18,8 @@ impl<F: PrimeField32> MemoryWriteCols<F> {
 
 impl<F: PrimeField32> MemoryReadCols<F> {
     pub fn populate(&mut self, record: MemoryReadRecord, output: &mut impl ByteRecord) {
-        let current_record =
-            MemoryRecord { value: record.value, timestamp: record.timestamp };
-        let prev_record = MemoryRecord {
-            value: record.value,
-            timestamp: record.prev_timestamp,
-        };
+        let current_record = MemoryRecord { value: record.value, timestamp: record.timestamp };
+        let prev_record = MemoryRecord { value: record.value, timestamp: record.prev_timestamp };
         self.access.populate_access(current_record, prev_record, output);
     }
 }
@@ -40,23 +33,16 @@ impl<F: PrimeField32> MemoryReadWriteCols<F> {
     }
 
     pub fn populate_write(&mut self, record: MemoryWriteRecord, output: &mut impl ByteRecord) {
-        let current_record =
-            MemoryRecord { value: record.value, timestamp: record.timestamp };
-        let prev_record = MemoryRecord {
-            value: record.prev_value,
-            timestamp: record.prev_timestamp,
-        };
+        let current_record = MemoryRecord { value: record.value, timestamp: record.timestamp };
+        let prev_record =
+            MemoryRecord { value: record.prev_value, timestamp: record.prev_timestamp };
         self.prev_value = F::from_canonical_u8(prev_record.value);
         self.access.populate_access(current_record, prev_record, output);
     }
 
     pub fn populate_read(&mut self, record: MemoryReadRecord, output: &mut impl ByteRecord) {
-        let current_record =
-            MemoryRecord { value: record.value, timestamp: record.timestamp };
-        let prev_record = MemoryRecord {
-            value: record.value,
-            timestamp: record.prev_timestamp,
-        };
+        let current_record = MemoryRecord { value: record.value, timestamp: record.timestamp };
+        let prev_record = MemoryRecord { value: record.value, timestamp: record.prev_timestamp };
         self.prev_value = F::from_canonical_u8(prev_record.value);
         self.access.populate_access(current_record, prev_record, output);
     }

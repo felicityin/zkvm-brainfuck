@@ -5,10 +5,7 @@ use p3_koala_bear::KoalaBear;
 use p3_matrix::Matrix;
 
 use super::LookupKind;
-use crate::{
-    air::MachineAir,
-    MachineChip, StarkGenericConfig, StarkMachine, StarkProvingKey, Val,
-};
+use crate::{air::MachineAir, MachineChip, StarkGenericConfig, StarkMachine, StarkProvingKey, Val};
 
 /// The data for an interaction.
 #[derive(Debug)]
@@ -100,11 +97,7 @@ pub fn debug_interactions<SC: StarkGenericConfig, A: MachineAir<Val<SC>>>(
                     let expr: Val<SC> = value.apply(preprocessed_row, main.row_mut(row));
                     values.push(expr);
                 }
-                let key = format!(
-                    "{} {}",
-                    &interaction.kind.to_string(),
-                    vec_to_string(values)
-                );
+                let key = format!("{} {}", &interaction.kind.to_string(), vec_to_string(values));
                 key_to_vec_data.entry(key.clone()).or_insert_with(Vec::new).push(LookupData {
                     chip_name: chip.name(),
                     kind: interaction.kind,
@@ -149,12 +142,10 @@ where
         if !chip.included(shard) {
             continue;
         }
-        let (_, count) =
-            debug_interactions::<SC, A>(chip, pkey, shard, interaction_kinds.clone());
+        let (_, count) = debug_interactions::<SC, A>(chip, pkey, shard, interaction_kinds.clone());
         total_events += count.len();
         for (key, value) in count.iter() {
-            let entry =
-                final_map.entry(key.clone()).or_insert((SC::Val::ZERO, BTreeMap::new()));
+            let entry = final_map.entry(key.clone()).or_insert((SC::Val::ZERO, BTreeMap::new()));
             entry.0 += *value;
             total += *value;
             *entry.1.entry(chip.name()).or_insert(SC::Val::ZERO) += *value;
@@ -168,11 +159,7 @@ where
     let mut any_nonzero = false;
     for (key, (value, chip_values)) in final_map.clone() {
         if !Val::<SC>::is_zero(&value) {
-            tracing::info!(
-                "Lookup key: {} Send-Receive Discrepancy: {}",
-                key,
-                field_to_int(value)
-            );
+            tracing::info!("Lookup key: {} Send-Receive Discrepancy: {}", key, field_to_int(value));
             any_nonzero = true;
             for (chip, chip_value) in chip_values {
                 tracing::info!(

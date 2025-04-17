@@ -49,7 +49,9 @@ impl Instruction {
 
     #[must_use]
     pub const fn is_mv_immutable(&self) -> bool {
-        self.is_alu_instruction() || self.is_jump_instruction() || matches!(self.opcode, Opcode::Output)
+        self.is_alu_instruction()
+            || self.is_jump_instruction()
+            || matches!(self.opcode, Opcode::Output)
     }
 
     pub fn decode_from(opcode: char, operand: Option<u32>) -> Self {

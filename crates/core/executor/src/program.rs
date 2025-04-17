@@ -1,6 +1,6 @@
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
 use p3_field::PrimeField32;
+use serde::{Deserialize, Serialize};
 
 use bf_stark::air::MachineProgram;
 

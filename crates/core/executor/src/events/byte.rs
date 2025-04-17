@@ -115,9 +115,7 @@ impl ByteOpcode {
     /// Get all the byte opcodes.
     #[must_use]
     pub fn all() -> Vec<Self> {
-        let opcodes = vec![
-            ByteOpcode::U8Range,
-        ];
+        let opcodes = vec![ByteOpcode::U8Range];
         debug_assert_eq!(opcodes.len(), NUM_BYTE_OPS);
         opcodes
     }

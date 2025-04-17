@@ -8,9 +8,9 @@ use p3_field::{PrimeField, PrimeField32};
 use p3_matrix::{dense::RowMajorMatrix, Matrix};
 use p3_maybe_rayon::prelude::{ParallelBridge, ParallelIterator};
 
-use bf_core_executor::{events::IoEvent, ExecutionRecord, Program, Opcode};
+use bf_core_executor::{events::IoEvent, ExecutionRecord, Opcode, Program};
 use bf_derive::AlignedBorrow;
-use bf_stark::air::{MachineAir, BfAirBuilder};
+use bf_stark::air::{BfAirBuilder, MachineAir};
 
 use crate::utils::{next_power_of_two, zeroed_f_vec};
 
@@ -36,6 +36,12 @@ struct IoCols<T> {
 }
 
 pub struct IoChip {}
+
+impl Default for IoChip {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl IoChip {
     /// Creates a new memory chip with a certain type.
@@ -105,11 +111,7 @@ impl<F: PrimeField32> MachineAir<F> for IoChip {
 
 impl IoChip {
     /// Create a row from an event.
-    fn event_to_row<F: PrimeField>(
-        &self,
-        event: &IoEvent,
-        cols: &mut IoCols<F>,
-    ) {
+    fn event_to_row<F: PrimeField>(&self, event: &IoEvent, cols: &mut IoCols<F>) {
         cols.pc = F::from_canonical_u32(event.pc);
         cols.mp = F::from_canonical_u32(event.mp);
         cols.mv = F::from_canonical_u8(event.mv);
@@ -135,12 +137,6 @@ where
         let opcode = local.is_input * Opcode::Input.as_field::<AB::F>()
             + local.is_output * Opcode::Output.as_field::<AB::F>();
 
-        builder.receive_io(
-            local.pc,
-            opcode,
-            local.mp,
-            local.mv,
-            is_real,
-        );
+        builder.receive_io(local.pc, opcode, local.mp, local.mv, is_real);
     }
 }

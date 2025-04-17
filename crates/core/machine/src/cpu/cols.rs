@@ -6,7 +6,7 @@ use bf_core_executor::Instruction;
 use bf_derive::AlignedBorrow;
 use bf_stark::Word;
 
-use crate::memory::{MemoryCols, MemoryWriteCols, MemoryReadWriteCols};
+use crate::memory::{MemoryCols, MemoryReadWriteCols, MemoryWriteCols};
 
 pub const NUM_CPU_COLS: usize = size_of::<CpuCols<u8>>();
 pub const NUM_INSTRUCTION_COLS: usize = size_of::<InstructionCols<u8>>();
@@ -72,7 +72,7 @@ impl<T: Copy> CpuCols<T> {
 impl<F: PrimeField> InstructionCols<F> {
     pub fn populate(&mut self, instruction: &Instruction) {
         self.opcode = instruction.opcode.as_field::<F>();
-        self.op_a = (instruction.op_a as u32).into();
+        self.op_a = instruction.op_a.into();
     }
 }
 
@@ -81,9 +81,6 @@ impl<T> IntoIterator for InstructionCols<T> {
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        once(self.opcode)
-            .chain(self.op_a)
-            .collect::<Vec<_>>()
-            .into_iter()
+        once(self.opcode).chain(self.op_a).collect::<Vec<_>>().into_iter()
     }
 }

@@ -6,7 +6,7 @@ use p3_matrix::Matrix;
 use bf_stark::air::{BaseAirBuilder, BfAirBuilder};
 
 use crate::{
-    air::{U8AirBuilder, MemoryAirBuilder, BfCoreAirBuilder},
+    air::{BfCoreAirBuilder, MemoryAirBuilder, U8AirBuilder},
     cpu::{
         cols::{CpuCols, NUM_CPU_COLS},
         CpuChip,
@@ -31,7 +31,8 @@ where
         let local: &CpuCols<AB::Var> = (*local).borrow();
         let next: &CpuCols<AB::Var> = (*next).borrow();
 
-        let clk = AB::Expr::from_canonical_u32(1u32 << 16) * local.clk_8bit_limb + local.clk_16bit_limb;
+        let clk =
+            AB::Expr::from_canonical_u32(1u32 << 16) * local.clk_8bit_limb + local.clk_16bit_limb;
 
         // Program constraints.
         builder.send_program(local.pc, local.instruction, local.is_real);
@@ -65,13 +66,7 @@ impl CpuChip {
         builder: &mut AB,
         local: &CpuCols<AB::Var>,
     ) {
-        builder.send_alu(
-            local.pc,
-            local.instruction.opcode,
-            local.mv,
-            local.next_mv,
-            local.is_alu,
-        );
+        builder.send_alu(local.pc, local.instruction.opcode, local.mv, local.next_mv, local.is_alu);
 
         builder.send_jump(
             local.pc,
@@ -91,13 +86,7 @@ impl CpuChip {
             local.is_memory_instr,
         );
 
-        builder.send_io(
-            local.pc,
-            local.next_pc,
-            local.instruction.opcode,
-            local.mv,
-            local.is_io,
-        );
+        builder.send_io(local.pc, local.next_pc, local.instruction.opcode, local.mv, local.is_io);
     }
 
     /// Constraints related to the clk.
@@ -116,8 +105,7 @@ impl CpuChip {
         // Verify that the first row has a clk value of 0.
         builder.when_first_row().assert_zero(clk.clone());
 
-        let expected_next_clk =
-            clk.clone() + AB::Expr::from_canonical_u32(2);
+        let expected_next_clk = clk.clone() + AB::Expr::from_canonical_u32(2);
 
         let next_clk =
             AB::Expr::from_canonical_u32(1u32 << 16) * next.clk_8bit_limb + next.clk_16bit_limb;
@@ -175,8 +163,6 @@ impl CpuChip {
         builder.range_check_u8(local.mv.into(), local.is_real);
 
         // If we are performing an ALU​​, ​​JMP​​, or ​​OUTPUT instruction, then the value of `mv` is the previous value.
-        builder
-            .when(local.is_mv_immutable)
-            .assert_eq(local.mv_val(), local.mv_access.prev_value);
-    }    
+        builder.when(local.is_mv_immutable).assert_eq(local.mv_val(), local.mv_access.prev_value);
+    }
 }

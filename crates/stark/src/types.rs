@@ -3,10 +3,7 @@
 use std::fmt::Debug;
 
 use hashbrown::HashMap;
-use p3_matrix::{
-    dense::RowMajorMatrixView,
-    stack::VerticalPair,
-};
+use p3_matrix::{dense::RowMajorMatrixView, stack::VerticalPair};
 use serde::{Deserialize, Serialize};
 
 use super::{Challenge, Com, OpeningProof, StarkGenericConfig};
@@ -92,11 +89,7 @@ impl<T: Send + Sync + Clone> AirOpenedValues<T> {
 
 impl<SC: StarkGenericConfig> ShardProof<SC> {
     pub fn cumulative_sum(&self) -> Challenge<SC> {
-        self.opened_values
-            .chips
-            .iter()
-            .map(|c| c.cumulative_sum)
-            .sum()
+        self.opened_values.chips.iter().map(|c| c.cumulative_sum).sum()
     }
 
     pub fn log_degree_cpu(&self) -> usize {

@@ -3,9 +3,7 @@ use std::{
     ops::{Add, Mul, MulAssign, Sub},
 };
 
-use p3_air::{
-    AirBuilder, ExtensionBuilder, PairBuilder, PermutationAirBuilder,
-};
+use p3_air::{AirBuilder, ExtensionBuilder, PairBuilder, PermutationAirBuilder};
 use p3_field::{ExtensionField, Field, FieldAlgebra};
 use p3_matrix::{dense::RowMajorMatrixView, stack::VerticalPair};
 
@@ -125,13 +123,8 @@ impl<SC: StarkGenericConfig> PairBuilder for ProverConstraintFolder<'_, SC> {
 impl<SC: StarkGenericConfig> EmptyMessageBuilder for ProverConstraintFolder<'_, SC> {}
 
 /// A folder for verifier constraints.
-pub type VerifierConstraintFolder<'a, SC> = GenericVerifierConstraintFolder<
-    'a,
-    Val<SC>,
-    Challenge<SC>,
-    Challenge<SC>,
-    Challenge<SC>,
->;
+pub type VerifierConstraintFolder<'a, SC> =
+    GenericVerifierConstraintFolder<'a, Val<SC>, Challenge<SC>, Challenge<SC>, Challenge<SC>>;
 
 /// A folder for verifier constraints.
 pub struct GenericVerifierConstraintFolder<'a, F, EF, Var, Expr> {
@@ -159,8 +152,7 @@ pub struct GenericVerifierConstraintFolder<'a, F, EF, Var, Expr> {
     pub _marker: PhantomData<(F, EF)>,
 }
 
-impl<'a, F, EF, Var, Expr> AirBuilder
-    for GenericVerifierConstraintFolder<'a, F, EF, Var, Expr>
+impl<'a, F, EF, Var, Expr> AirBuilder for GenericVerifierConstraintFolder<'a, F, EF, Var, Expr>
 where
     F: Field,
     EF: ExtensionField<F>,
@@ -219,8 +211,7 @@ where
     }
 }
 
-impl<F, EF, Var, Expr> ExtensionBuilder
-    for GenericVerifierConstraintFolder<'_, F, EF, Var, Expr>
+impl<F, EF, Var, Expr> ExtensionBuilder for GenericVerifierConstraintFolder<'_, F, EF, Var, Expr>
 where
     F: Field,
     EF: ExtensionField<F>,
@@ -334,8 +325,7 @@ where
     }
 }
 
-impl<F, EF, Var, Expr> PairBuilder
-    for GenericVerifierConstraintFolder<'_, F, EF, Var, Expr>
+impl<F, EF, Var, Expr> PairBuilder for GenericVerifierConstraintFolder<'_, F, EF, Var, Expr>
 where
     F: Field,
     EF: ExtensionField<F>,
@@ -367,8 +357,7 @@ where
     }
 }
 
-impl<F, EF, Var, Expr> EmptyMessageBuilder
-    for GenericVerifierConstraintFolder<'_, F, EF, Var, Expr>
+impl<F, EF, Var, Expr> EmptyMessageBuilder for GenericVerifierConstraintFolder<'_, F, EF, Var, Expr>
 where
     F: Field,
     EF: ExtensionField<F>,

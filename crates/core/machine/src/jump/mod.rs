@@ -14,12 +14,10 @@ mod tests {
     use p3_matrix::dense::RowMajorMatrix;
 
     use bf_core_executor::{events::JumpEvent, ExecutionRecord, Opcode};
-    use bf_stark::{
-        air::MachineAir, koala_bear_poseidon2::KoalaBearPoseidon2, StarkGenericConfig,
-    };
+    use bf_stark::{air::MachineAir, koala_bear_poseidon2::KoalaBearPoseidon2, StarkGenericConfig};
 
-    use crate::utils::{uni_stark_prove as prove, uni_stark_verify as verify};
     use super::JumpChip;
+    use crate::utils::{uni_stark_prove as prove, uni_stark_verify as verify};
 
     #[test]
     fn test_zero() {
@@ -39,36 +37,12 @@ mod tests {
         let mut challenger = config.challenger();
 
         let mut shard = ExecutionRecord::default();
-        shard.jump_events.push(JumpEvent::new(
-            1,
-            5,
-            Opcode::LoopStart,
-            5,
-            0,
-        ));
-        shard.jump_events.push(JumpEvent::new(
-            1,
-            2,
-            Opcode::LoopStart,
-            5,
-            1,
-        ));
-        shard.jump_events.push(JumpEvent::new(
-            1,
-            5,
-            Opcode::LoopEnd,
-            5,
-            5,
-        ));
-        shard.jump_events.push(JumpEvent::new(
-            1,
-            2,
-            Opcode::LoopEnd,
-            5,
-            0,
-        ));
+        shard.jump_events.push(JumpEvent::new(1, 5, Opcode::LoopStart, 5, 0));
+        shard.jump_events.push(JumpEvent::new(1, 2, Opcode::LoopStart, 5, 1));
+        shard.jump_events.push(JumpEvent::new(1, 5, Opcode::LoopEnd, 5, 5));
+        shard.jump_events.push(JumpEvent::new(1, 2, Opcode::LoopEnd, 5, 0));
 
-        let chip = JumpChip::default();
+        let chip = JumpChip;
         let trace: RowMajorMatrix<KoalaBear> =
             chip.generate_trace(&shard, &mut ExecutionRecord::default());
         let proof = prove::<KoalaBearPoseidon2, _>(&config, &chip, &mut challenger, trace);

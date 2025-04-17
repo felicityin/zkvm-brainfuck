@@ -5,11 +5,11 @@ use p3_matrix::{dense::RowMajorMatrixView, stack::VerticalPair, Matrix};
 use p3_maybe_rayon::prelude::*;
 use p3_util::log2_strict_usize;
 
-use crate::air::MachineAir;
 use super::{
     folder::ProverConstraintFolder, Chip, Domain, PackedChallenge, PackedVal, StarkGenericConfig,
     Val,
 };
+use crate::air::MachineAir;
 
 /// Computes the quotient values.
 #[allow(clippy::needless_pass_by_value)]

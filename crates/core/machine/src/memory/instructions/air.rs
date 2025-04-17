@@ -7,8 +7,8 @@ use p3_matrix::Matrix;
 use bf_core_executor::Opcode;
 use bf_stark::air::BfAirBuilder;
 
+use super::{MemoryInstructionsChip, MemoryInstructionsCols, NUM_MEMORY_INSTRUCTIONS_COLS};
 use crate::operations::KoalaBearWordRangeChecker;
-use super::{MemoryInstructionsCols, MemoryInstructionsChip, NUM_MEMORY_INSTRUCTIONS_COLS};
 
 impl<F> BaseAir<F> for MemoryInstructionsChip {
     fn width(&self) -> usize {
@@ -43,7 +43,9 @@ where
             local.mp.reduce::<AB>() - AB::F::from_canonical_u32(1),
         );
 
-        builder.when_transition().when(next.is_real)
+        builder
+            .when_transition()
+            .when(next.is_real)
             .assert_eq(local.next_mp.reduce::<AB>(), next.mp.reduce::<AB>());
 
         KoalaBearWordRangeChecker::<AB::F>::range_check(

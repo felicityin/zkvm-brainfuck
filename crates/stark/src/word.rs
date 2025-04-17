@@ -1,5 +1,5 @@
-use std::ops::{Index, IndexMut};
 use std::array::IntoIter;
+use std::ops::{Index, IndexMut};
 
 use arrayref::array_ref;
 use itertools::Itertools;

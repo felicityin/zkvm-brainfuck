@@ -18,12 +18,7 @@ pub struct AddOperation<T> {
 }
 
 impl<F: Field> AddOperation<F> {
-    pub fn populate(
-        &mut self,
-        record: &mut impl ByteRecord,
-        a_u8: u8,
-        b_u8: u8,
-    ) -> u8 {
+    pub fn populate(&mut self, record: &mut impl ByteRecord, a_u8: u8, b_u8: u8) -> u8 {
         let expected = a_u8.wrapping_add(b_u8);
         self.value = F::from_canonical_u8(expected);
 

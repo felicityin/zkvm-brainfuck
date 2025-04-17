@@ -4,16 +4,10 @@ use size::Size;
 use thiserror::Error;
 use web_time::Instant;
 
-use bf_core_executor::{
-    ExecutionError, Executor, Program,
-};
+use bf_core_executor::{ExecutionError, Executor, Program};
+use bf_stark::{koala_bear_poseidon2::KoalaBearPoseidon2, MachineVerificationError};
 use bf_stark::{
-    koala_bear_poseidon2::KoalaBearPoseidon2,
-    MachineVerificationError,
-};
-use bf_stark::{
-    Com, StarkGenericConfig, UniConfig, MachineProof, MachineProver,
-    OpeningProof, PcsProverData,
+    Com, MachineProof, MachineProver, OpeningProof, PcsProverData, StarkGenericConfig, UniConfig,
 };
 
 use crate::brainfuck::BfAir;
@@ -45,8 +39,7 @@ where
     // Prove the program.
     let mut challenger = prover.config().challenger();
     let proving_start = Instant::now();
-    let proof =
-        prover.prove(&pk, &mut runtime.record, &mut challenger).unwrap();
+    let proof = prover.prove(pk, &mut runtime.record, &mut challenger).unwrap();
     let proving_duration = proving_start.elapsed().as_millis();
     let nb_bytes = bincode::serialize(&proof).unwrap().len();
 
@@ -90,13 +83,8 @@ pub fn run_test_core<P: MachineProver<KoalaBearPoseidon2, BfAir<KoalaBear>>>(
     let prover = P::new(machine);
 
     let (pk, _) = prover.setup(runtime.program.as_ref());
-    let (proof, output, _) = prove(
-        &prover,
-        &pk,
-        Program::clone(&runtime.program),
-        runtime.state.input_stream,
-    )
-    .unwrap();
+    let (proof, output, _) =
+        prove(&prover, &pk, Program::clone(&runtime.program), runtime.state.input_stream).unwrap();
 
     let config = KoalaBearPoseidon2::new();
     let machine = BfAir::machine(config);

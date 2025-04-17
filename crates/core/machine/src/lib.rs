@@ -1,11 +1,11 @@
 pub mod air;
 pub mod alu;
-pub mod bytes;
 pub mod brainfuck;
+pub mod bytes;
 pub mod cpu;
 pub mod io;
 pub mod jump;
 pub mod memory;
-pub mod program;
 pub mod operations;
+pub mod program;
 pub mod utils;

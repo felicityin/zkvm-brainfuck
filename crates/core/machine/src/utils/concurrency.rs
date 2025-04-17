@@ -6,6 +6,12 @@ pub struct TurnBasedSync {
     pub cv: Condvar,
 }
 
+impl Default for TurnBasedSync {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TurnBasedSync {
     /// Creates a new [TurnBasedSync].
     pub fn new() -> Self {

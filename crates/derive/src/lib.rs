@@ -26,9 +26,7 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{
-    parse_macro_input, parse_quote, Data, DeriveInput, GenericParam, WherePredicate,
-};
+use syn::{parse_macro_input, parse_quote, Data, DeriveInput, GenericParam, WherePredicate};
 
 #[proc_macro_derive(AlignedBorrow)]
 pub fn aligned_borrow_derive(input: TokenStream) -> TokenStream {
@@ -90,16 +88,9 @@ pub fn aligned_borrow_derive(input: TokenStream) -> TokenStream {
     TokenStream::from(methods)
 }
 
-
 #[proc_macro_derive(
     MachineAir,
-    attributes(
-        bf_core_path,
-        execution_record_path,
-        program_path,
-        builder_path,
-        eval_trait_bound
-    )
+    attributes(bf_core_path, execution_record_path, program_path, builder_path, eval_trait_bound)
 )]
 pub fn machine_air_derive(input: TokenStream) -> TokenStream {
     let ast: syn::DeriveInput = syn::parse(input).unwrap();

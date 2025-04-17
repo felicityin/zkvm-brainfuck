@@ -11,13 +11,13 @@ use p3_maybe_rayon::prelude::{ParallelBridge, ParallelIterator};
 
 use bf_core_executor::{ExecutionRecord, Program};
 use bf_derive::AlignedBorrow;
-use bf_stark::air::{MachineAir, BfAirBuilder};
+use bf_stark::air::{BfAirBuilder, MachineAir};
 
+use crate::cpu::cols::InstructionCols;
 use crate::{
     air::ProgramAirBuilder,
     utils::{next_power_of_two, pad_rows_fixed, zeroed_f_vec},
 };
-use crate::cpu::cols::InstructionCols;
 
 /// The number of preprocessed program columns.
 pub const NUM_PROGRAM_PREPROCESSED_COLS: usize = size_of::<ProgramPreprocessedCols<u8>>();

@@ -5,11 +5,11 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::events::*;
+use crate::instruction::Instruction;
+use crate::opcode::Opcode;
 use crate::program::Program;
 use crate::record::{ExecutionRecord, MemoryAccessRecord};
 use crate::state::ExecutionState;
-use crate::opcode::Opcode;
-use crate::instruction::Instruction;
 
 /// The default increment for the program counter.  Is used for all instructions except
 /// for branches and jumps.
@@ -63,12 +63,7 @@ impl Executor {
         // Create a default record with the program.
         let record = ExecutionRecord::new(program.clone());
 
-        Self {
-            program,
-            record,
-            state: ExecutionState::new(input),
-            ..Default::default()
-        }
+        Self { program, record, state: ExecutionState::new(input), ..Default::default() }
     }
 
     /// Executes the program.
@@ -117,7 +112,9 @@ impl Executor {
 
         // Execute the instruction.
         match instruction.opcode {
-            Opcode::MemStepForward | Opcode::MemStepBackward => mv = self.execute_memory(instruction),
+            Opcode::MemStepForward | Opcode::MemStepBackward => {
+                mv = self.execute_memory(instruction)
+            }
             Opcode::Add | Opcode::Sub => (next_mv, mv) = self.execute_alu(instruction),
             Opcode::LoopStart | Opcode::LoopEnd => {
                 (mv, next_pc) = self.execute_jump(instruction);
@@ -126,15 +123,7 @@ impl Executor {
             Opcode::Input | Opcode::Output => mv = self.execute_io(instruction),
         }
 
-        self.emit_events(
-            next_pc,
-            instruction,
-            jmp_dst,
-            mp,
-            next_mv,
-            mv,
-            self.memory_accesses,
-        );
+        self.emit_events(next_pc, instruction, jmp_dst, mp, next_mv, mv, self.memory_accesses);
 
         // Update the program counter.
         self.state.pc = next_pc;
@@ -201,7 +190,7 @@ impl Executor {
             }
             Opcode::Output => {
                 let output = self.rr_cpu(self.state.mem_ptr);
-                self.state.output_stream.push(output as u8);
+                self.state.output_stream.push(output);
                 output
             }
             _ => unreachable!(),
@@ -259,12 +248,7 @@ impl Executor {
             ));
         }
         if instruction.is_io_instruction() {
-            self.record.io_events.push(IoEvent::new(
-                self.state.pc,
-                instruction.opcode,
-                mp,
-                mv,
-            ));
+            self.record.io_events.push(IoEvent::new(self.state.pc, instruction.opcode, mp, mv));
         }
     }
 
@@ -286,8 +270,8 @@ impl Executor {
 
     /// Read a register and create an access record.
     pub fn rr_traced(&mut self, addr: u32, timestamp: u32) -> MemoryReadRecord {
-        let record: &mut MemoryRecord =  &mut self.state.memory_access.entry(addr)
-            .or_insert(MemoryRecord { value: 0, timestamp: 0 });
+        let record: &mut MemoryRecord =
+            self.state.memory_access.entry(addr).or_insert(MemoryRecord { value: 0, timestamp: 0 });
         let prev_record = *record;
         record.timestamp = timestamp;
 
@@ -312,8 +296,8 @@ impl Executor {
 
     /// Write a word to a register and create an access record.
     pub fn rw_traced(&mut self, addr: u32, value: u8, timestamp: u32) -> MemoryWriteRecord {
-        let record: &mut MemoryRecord =  &mut self.state.memory_access.entry(addr)
-            .or_insert(MemoryRecord { value: 0, timestamp: 0 });
+        let record: &mut MemoryRecord =
+            self.state.memory_access.entry(addr).or_insert(MemoryRecord { value: 0, timestamp: 0 });
         let prev_record = *record;
         record.value = value;
         record.timestamp = timestamp;
@@ -386,7 +370,7 @@ mod tests {
         let mut runtime = Executor::new(program, vec![]);
         runtime.run().unwrap();
 
-        assert_eq!('A' as u8, runtime.state.output_stream[0]);
+        assert_eq!(b'A', runtime.state.output_stream[0]);
     }
 
     #[test]
@@ -410,7 +394,7 @@ mod tests {
         runtime.run().unwrap();
 
         assert_eq!(9, runtime.state.pc);
-        assert_eq!(0 as u8, runtime.state.output_stream[0]);
+        assert_eq!(0_u8, runtime.state.output_stream[0]);
     }
 
     #[test]
@@ -421,11 +405,11 @@ mod tests {
         let mut runtime = Executor::new(program, vec![]);
         runtime.run().unwrap();
 
-        assert_eq!('H' as u8, runtime.state.output_stream[0]);
-        assert_eq!('e' as u8, runtime.state.output_stream[1]);
-        assert_eq!('l' as u8, runtime.state.output_stream[2]);
-        assert_eq!('l' as u8, runtime.state.output_stream[3]);
-        assert_eq!('o' as u8, runtime.state.output_stream[4]);
+        assert_eq!(b'H', runtime.state.output_stream[0]);
+        assert_eq!(b'e', runtime.state.output_stream[1]);
+        assert_eq!(b'l', runtime.state.output_stream[2]);
+        assert_eq!(b'l', runtime.state.output_stream[3]);
+        assert_eq!(b'o', runtime.state.output_stream[4]);
     }
 
     #[test]

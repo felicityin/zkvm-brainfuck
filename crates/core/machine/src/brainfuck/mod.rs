@@ -3,19 +3,16 @@ use p3_field::PrimeField32;
 use strum_macros::{EnumDiscriminants, EnumIter};
 
 pub use bf_chips::*;
-use bf_stark::{
-    air::MachineAir,
-    Chip, StarkGenericConfig, StarkMachine,
-};
+use bf_stark::{air::MachineAir, Chip, StarkGenericConfig, StarkMachine};
 
 /// A module for importing all the different MIPS chips.
 pub(crate) mod bf_chips {
     pub use crate::{
         alu::AddSubChip,
         bytes::ByteChip,
-        jump::JumpChip,
         cpu::CpuChip,
         io::IoChip,
+        jump::JumpChip,
         memory::{MemoryChip, MemoryInstructionsChip},
         program::ProgramChip,
     };
@@ -56,16 +53,16 @@ impl<F: PrimeField32> BfAir<F> {
     pub fn chips() -> Vec<Chip<F, Self>> {
         let mut chips = vec![];
 
-        let cpu = Chip::new(BfAir::Cpu(CpuChip::default()));
+        let cpu = Chip::new(BfAir::Cpu(CpuChip));
         chips.push(cpu);
 
-        let program = Chip::new(BfAir::Program(ProgramChip::default()));
+        let program = Chip::new(BfAir::Program(ProgramChip));
         chips.push(program);
 
-        let add_sub = Chip::new(BfAir::AddSub(AddSubChip::default()));
+        let add_sub = Chip::new(BfAir::AddSub(AddSubChip));
         chips.push(add_sub);
 
-        let jump = Chip::new(BfAir::Jump(JumpChip::default()));
+        let jump = Chip::new(BfAir::Jump(JumpChip));
         chips.push(jump);
 
         let memory = Chip::new(BfAir::Memory(MemoryChip::new()));
@@ -74,8 +71,7 @@ impl<F: PrimeField32> BfAir<F> {
         let byte = Chip::new(BfAir::ByteLookup(ByteChip::default()));
         chips.push(byte);
 
-        let memory_instructions =
-            Chip::new(BfAir::MemoryInstrs(MemoryInstructionsChip::default()));
+        let memory_instructions = Chip::new(BfAir::MemoryInstrs(MemoryInstructionsChip));
         chips.push(memory_instructions);
 
         chips
@@ -105,15 +101,11 @@ impl<F: PrimeField32> core::hash::Hash for BfAir<F> {
 #[cfg(test)]
 #[allow(non_snake_case)]
 pub mod tests {
-    use bf_core_executor::{
-        Instruction, Opcode, Program,
-    };
-    use bf_stark::{
-        CpuProver, StarkVerifyingKey,
-   };
-   use test_artifacts::{FIBO_BF, HELLO_BF, LOOP_BF, MOVE_BF, PRINTA_BF};
+    use bf_core_executor::{Instruction, Opcode, Program};
+    use bf_stark::CpuProver;
+    use test_artifacts::{FIBO_BF, HELLO_BF, LOOP_BF, MOVE_BF, PRINTA_BF};
 
-   use crate::utils::{prove, run_test, setup_logger};
+    use crate::utils::{run_test, setup_logger};
 
     #[test]
     fn test_instructions_prove() {

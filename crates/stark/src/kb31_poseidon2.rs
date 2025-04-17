@@ -3,6 +3,7 @@
 pub const DIGEST_SIZE: usize = 8;
 
 pub mod koala_bear_poseidon2 {
+    use bf_primitives::RC_16_30;
     use p3_challenger::DuplexChallenger;
     use p3_commit::ExtensionMmcs;
     use p3_dft::Radix2DitParallel;
@@ -13,7 +14,6 @@ pub mod koala_bear_poseidon2 {
     use p3_poseidon2::ExternalLayerConstants;
     use p3_symmetric::{Hash, PaddingFreeSponge, TruncatedPermutation};
     use serde::{Deserialize, Serialize};
-    use bf_primitives::RC_16_30;
 
     use crate::{Com, StarkGenericConfig, ZeroCommitment, DIGEST_SIZE};
 

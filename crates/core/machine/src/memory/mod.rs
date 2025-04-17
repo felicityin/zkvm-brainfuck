@@ -1,5 +1,6 @@
 mod consistency;
 mod instructions;
+#[allow(clippy::module_inception)]
 mod memory;
 
 pub use consistency::*;

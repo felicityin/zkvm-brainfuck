@@ -4,10 +4,7 @@ use std::{
     process::exit,
 };
 
-use p3_air::{
-    Air, AirBuilder, ExtensionBuilder, PairBuilder,
-    PermutationAirBuilder,
-};
+use p3_air::{Air, AirBuilder, ExtensionBuilder, PairBuilder, PermutationAirBuilder};
 use p3_field::{ExtensionField, Field, FieldAlgebra, PrimeField32};
 use p3_matrix::{
     dense::{RowMajorMatrix, RowMajorMatrixView},

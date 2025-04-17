@@ -1,8 +1,8 @@
+use core::fmt::Display;
 use std::{
     fmt::{Debug, Formatter},
     marker::PhantomData,
 };
-use core::fmt::Display;
 
 use itertools::Itertools;
 use num_traits::cast::ToPrimitive;
@@ -36,13 +36,7 @@ impl<SC: StarkGenericConfig, A: MachineAir<Val<SC>>> Verifier<SC, A> {
     {
         use itertools::izip;
 
-        let ShardProof {
-            commitment,
-            opened_values,
-            opening_proof,
-            chip_ordering,
-            ..
-        } = proof;
+        let ShardProof { commitment, opened_values, opening_proof, chip_ordering, .. } = proof;
 
         let pcs = config.pcs();
 
@@ -240,13 +234,8 @@ impl<SC: StarkGenericConfig, A: MachineAir<Val<SC>>> Verifier<SC, A> {
         // Recompute the quotient at zeta from the chunks.
         let quotient = Self::recompute_quotient(opening, &qc_domains, zeta);
         // Calculate the evaluations of the constraints at zeta.
-        let folded_constraints = Self::eval_constraints(
-            chip,
-            opening,
-            &sels,
-            alpha,
-            permutation_challenges,
-        );
+        let folded_constraints =
+            Self::eval_constraints(chip, opening, &sels, alpha, permutation_challenges);
 
         // Check that the constraints match the quotient, i.e.
         //     folded_constraints(zeta) / Z_H(zeta) = quotient(zeta)

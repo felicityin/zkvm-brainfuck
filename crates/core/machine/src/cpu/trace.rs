@@ -168,7 +168,7 @@ impl CpuChip {
             0,
             0,
             0,
-            clk_8bit_limb as u8,
+            clk_8bit_limb,
         ));
     }
 }

@@ -62,7 +62,6 @@ pub struct MemoryReadRecord {
     pub prev_timestamp: u32,
 }
 
-
 /// Memory Write Record.
 ///
 /// This object encapsulates the information needed to prove a memory write operation.

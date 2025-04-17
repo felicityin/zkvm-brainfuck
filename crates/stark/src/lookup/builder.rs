@@ -3,8 +3,8 @@ use p3_field::Field;
 use p3_matrix::dense::RowMajorMatrix;
 use p3_uni_stark::{Entry, SymbolicExpression, SymbolicVariable};
 
-use crate::air::{AirLookup, MessageBuilder};
 use super::Lookup;
+use crate::air::{AirLookup, MessageBuilder};
 
 /// A builder for the lookup table Lookups.
 pub struct LookupBuilder<F: Field> {

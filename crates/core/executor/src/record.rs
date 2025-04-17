@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
-use serde::{Deserialize, Serialize};
 use hashbrown::HashMap;
+use serde::{Deserialize, Serialize};
 
 use bf_stark::MachineRecord;
 
-use crate::program::Program;
 use crate::events::*;
+use crate::program::Program;
 
 /// A record of the execution of a program.
 ///

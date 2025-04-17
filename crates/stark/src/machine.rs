@@ -12,15 +12,15 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
 
+use super::{debug_constraints, Dom};
+use super::{
+    Chip, Com, MachineProof, PcsProverData, StarkGenericConfig, Val, VerificationError, Verifier,
+};
 use crate::{
     air::MachineAir,
     lookup::{debug_interactions_with_all_chips, LookupKind},
     record::MachineRecord,
     DebugConstraintBuilder, ShardProof, VerifierConstraintFolder,
-};
-use super::{debug_constraints, Dom};
-use super::{
-    Chip, Com, MachineProof, PcsProverData, StarkGenericConfig, Val, VerificationError, Verifier,
 };
 
 /// A chip in a machine.
@@ -37,10 +37,7 @@ pub struct StarkMachine<SC: StarkGenericConfig, A> {
 
 impl<SC: StarkGenericConfig, A> StarkMachine<SC, A> {
     /// Creates a new [`StarkMachine`].
-    pub const fn new(
-        config: SC,
-        chips: Vec<Chip<Val<SC>, A>>,
-    ) -> Self {
+    pub const fn new(config: SC, chips: Vec<Chip<Val<SC>, A>>) -> Self {
         Self { config, chips }
     }
 }
@@ -228,11 +225,7 @@ impl<SC: StarkGenericConfig, A: MachineAir<Val<SC>>> StarkMachine<SC, A> {
 
     /// Generates the dependencies of the given records.
     #[allow(clippy::needless_for_each)]
-    pub fn generate_dependencies(
-        &self,
-        record: &mut A::Record,
-        chips_filter: Option<&[String]>,
-    ) {
+    pub fn generate_dependencies(&self, record: &mut A::Record, chips_filter: Option<&[String]>) {
         let chips = self
             .chips
             .iter()
@@ -345,8 +338,7 @@ impl<SC: StarkGenericConfig, A: MachineAir<Val<SC>>> StarkMachine<SC, A> {
                 .unzip_into_vecs(&mut permutation_traces, &mut cumulative_sums);
         });
 
-        let cumulative_sum =
-                cumulative_sums.clone().into_iter().sum::<SC::Challenge>();
+        let cumulative_sum = cumulative_sums.clone().into_iter().sum::<SC::Challenge>();
         if !cumulative_sum.is_zero() {
             tracing::warn!("Cumulative sum is not zero");
             tracing::debug_span!("debug local interactions").in_scope(|| {

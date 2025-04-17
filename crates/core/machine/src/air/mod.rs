@@ -9,7 +9,7 @@ pub use u8_air::*;
 use bf_stark::air::{BaseAirBuilder, BfAirBuilder};
 
 /// A trait which contains methods related to memory lookups in an AIR.
-
+///
 pub trait BfCoreAirBuilder:
     BfAirBuilder + U8AirBuilder + MemoryAirBuilder + ProgramAirBuilder
 {

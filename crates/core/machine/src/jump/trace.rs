@@ -6,14 +6,14 @@ use p3_matrix::dense::RowMajorMatrix;
 use p3_maybe_rayon::prelude::{ParallelBridge, ParallelIterator};
 
 use bf_core_executor::{
-    events::{JumpEvent, ByteLookupEvent, ByteRecord},
+    events::{ByteLookupEvent, ByteRecord, JumpEvent},
     ExecutionRecord, Opcode, Program,
 };
 use bf_stark::air::MachineAir;
 
 use crate::utils::{next_power_of_two, zeroed_f_vec};
 
-use super::{JumpChip, JumpCols,  NUM_JUMP_COLS};
+use super::{JumpChip, JumpCols, NUM_JUMP_COLS};
 
 impl<F: PrimeField32> MachineAir<F> for JumpChip {
     type Record = ExecutionRecord;

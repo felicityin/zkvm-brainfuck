@@ -11,7 +11,7 @@ use p3_maybe_rayon::prelude::{ParallelBridge, ParallelIterator};
 use bf_core_executor::{ExecutionRecord, Program};
 use bf_derive::AlignedBorrow;
 use bf_stark::{
-    air::{AirLookup, MachineAir, BfAirBuilder},
+    air::{AirLookup, BfAirBuilder, MachineAir},
     LookupKind,
 };
 
@@ -51,6 +51,12 @@ pub struct MemCols<T> {
 
 pub struct MemoryChip {}
 
+impl Default for MemoryChip {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MemoryChip {
     /// Creates a new memory chip with a certain type.
     pub const fn new() -> Self {
@@ -83,16 +89,13 @@ impl<F: PrimeField32> MachineAir<F> for MemoryChip {
         _output: &mut ExecutionRecord,
     ) -> RowMajorMatrix<F> {
         // Generate the trace rows for each event.
-        let nb_rows = (input.cpu_memory_access.len() + 1) / 2;
+        let nb_rows = input.cpu_memory_access.len().div_ceil(2);
         let padded_nb_rows = next_power_of_two(nb_rows);
         let mut values = zeroed_f_vec(padded_nb_rows * NUM_MEMORY_INIT_COLS);
         let chunk_size = std::cmp::max((nb_rows + 1) / num_cpus::get(), 1);
 
-        values
-            .chunks_mut(chunk_size * NUM_MEMORY_INIT_COLS)
-            .enumerate()
-            .par_bridge()
-            .for_each(|(i, rows)| {
+        values.chunks_mut(chunk_size * NUM_MEMORY_INIT_COLS).enumerate().par_bridge().for_each(
+            |(i, rows)| {
                 rows.chunks_mut(NUM_MEMORY_INIT_COLS).enumerate().for_each(|(j, row)| {
                     let idx = (i * chunk_size + j) * NUM_MEMORY_ENTRIES_PER_ROW;
                     let cols: &mut MemCols<F> = row.borrow_mut();
@@ -105,12 +108,15 @@ impl<F: PrimeField32> MachineAir<F> for MemoryChip {
                                 F::from_canonical_u32(event.initial_mem_access.timestamp);
                             cols.final_clk =
                                 F::from_canonical_u32(event.final_mem_access.timestamp);
-                            cols.initial_value = F::from_canonical_u8(event.initial_mem_access.value);                            cols.final_value = F::from_canonical_u8(event.final_mem_access.value);
+                            cols.initial_value =
+                                F::from_canonical_u8(event.initial_mem_access.value);
+                            cols.final_value = F::from_canonical_u8(event.final_mem_access.value);
                             cols.is_real = F::ONE;
                         }
                     }
                 });
-            });
+            },
+        );
 
         // Convert the trace to a row major matrix.
         RowMajorMatrix::new(values, NUM_MEMORY_INIT_COLS)
@@ -133,19 +139,10 @@ where
         for local in local.memory_entries.iter() {
             let values =
                 vec![local.initial_clk.into(), local.addr.into(), local.initial_value.into()];
-            builder.receive(AirLookup::new(
-                values,
-                local.is_real.into(),
-                LookupKind::Memory,
-            ));
+            builder.receive(AirLookup::new(values, local.is_real.into(), LookupKind::Memory));
 
-            let values =
-                vec![local.final_clk.into(), local.addr.into(), local.final_value.into()];
-            builder.send(AirLookup::new(
-                values,
-                local.is_real.into(),
-                LookupKind::Memory,
-            ));
+            let values = vec![local.final_clk.into(), local.addr.into(), local.final_value.into()];
+            builder.send(AirLookup::new(values, local.is_real.into(), LookupKind::Memory));
         }
     }
 }

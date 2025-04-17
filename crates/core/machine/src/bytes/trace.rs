@@ -6,11 +6,11 @@ use p3_matrix::dense::RowMajorMatrix;
 use bf_core_executor::{ByteOpcode, ExecutionRecord, Program};
 use bf_stark::air::MachineAir;
 
-use crate::utils::zeroed_f_vec;
 use super::{
     cols::{ByteMultCols, NUM_BYTE_MULT_COLS, NUM_BYTE_PREPROCESSED_COLS},
     ByteChip,
 };
+use crate::utils::zeroed_f_vec;
 
 pub const NUM_ROWS: usize = 1 << 16;
 
