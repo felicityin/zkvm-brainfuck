@@ -1,16 +1,11 @@
 use core::fmt;
-use hashbrown::{HashMap, HashSet};
-use itertools::Itertools;
 use p3_field::PrimeField32;
 use strum_macros::{EnumDiscriminants, EnumIter};
 
 pub use bf_chips::*;
-use bf_core_executor::{ExecutionRecord, Program};
-// use zkm_core_executor::events::PrecompileEvent;
-// use zkm_curves::weierstrass::{bls12_381::Bls12381BaseField, bn254::Bn254BaseField};
 use bf_stark::{
     air::MachineAir,
-    Chip, LookupKind, StarkGenericConfig, StarkMachine,
+    Chip, StarkGenericConfig, StarkMachine,
 };
 
 /// A module for importing all the different MIPS chips.
@@ -24,15 +19,8 @@ pub(crate) mod bf_chips {
         memory::{MemoryChip, MemoryInstructionsChip},
         program::ProgramChip,
     };
-    // pub use bf_curves::{
-    //     edwards::{ed25519::Ed25519Parameters, EdwardsCurve},
-    //     weierstrass::{
-    //         bls12_381::Bls12381Parameters, bn254::Bn254Parameters, secp256k1::Secp256k1Parameters,
-    //         secp256r1::Secp256r1Parameters, SwCurve,
-    //     },
-    // };
 }
-/// An AIR for encoding MIPS execution.
+/// An AIR for encoding execution.
 ///
 /// This enum contains all the different AIRs that are used in the zkMIPS IOP. Each variant is
 /// a different AIR that is used to encode a different part of the zkMIPS execution, and the
@@ -117,36 +105,80 @@ impl<F: PrimeField32> core::hash::Hash for BfAir<F> {
 #[cfg(test)]
 #[allow(non_snake_case)]
 pub mod tests {
-    use hashbrown::HashMap;
-    use itertools::Itertools;
-    use p3_koala_bear::KoalaBear;
-    use strum::IntoEnumIterator;
-
     use bf_core_executor::{
-        // programs::tests::{
-        //     fibonacci_program, hello_world_program, sha3_chain_program, simple_memory_program,
-        //     simple_program, ssz_withdrawals_program,
-        // },
         Instruction, Opcode, Program,
     };
-    use bf_stark::air::MachineAir;
     use bf_stark::{
-        koala_bear_poseidon2::KoalaBearPoseidon2, CpuProver, StarkProvingKey, StarkVerifyingKey,
+        CpuProver, StarkVerifyingKey,
    };
+   use test_artifacts::{FIBO_BF, HELLO_BF, LOOP_BF, MOVE_BF, PRINTA_BF};
 
-   use crate::{
-        bf::BfsAir,
-        utils,
-        utils::{prove, run_test, setup_logger},
-    };
+   use crate::utils::{prove, run_test, setup_logger};
 
     #[test]
-    fn test_add_prove() {
+    fn test_instructions_prove() {
         setup_logger();
         let instructions = vec![
             Instruction::new(Opcode::Add),
+            Instruction::new(Opcode::Sub),
+            Instruction::new(Opcode::MemStepForward),
+            Instruction::new(Opcode::MemStepBackward),
         ];
         let program = Program::new(instructions);
-        run_test::<CpuProver<_, _>>(program).unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
+    }
+
+    #[test]
+    fn test_add_sub_prove() {
+        let program = Program::from("++-.").unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
+    }
+
+    #[test]
+    fn test_mem_prove() {
+        let program = Program::from(">><").unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
+    }
+
+    #[test]
+    fn test_jmp_prove() {
+        let program = Program::from("[----]").unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
+    }
+
+    #[test]
+    fn test_io_prove() {
+        let program = Program::from(",.").unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![1]).unwrap();
+    }
+
+    #[test]
+    fn test_printa_prove() {
+        let program = Program::from(PRINTA_BF).unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
+    }
+
+    #[test]
+    fn test_move_prove() {
+        let program = Program::from(MOVE_BF).unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
+    }
+
+    #[test]
+    fn test_loop_prove() {
+        let program = Program::from(LOOP_BF).unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
+    }
+
+    #[test]
+    fn test_hello_prove() {
+        let program = Program::from(HELLO_BF).unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
+    }
+
+    #[test]
+    fn test_fibo_prove() {
+        let program = Program::from(FIBO_BF).unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![17]).unwrap();
     }
 }

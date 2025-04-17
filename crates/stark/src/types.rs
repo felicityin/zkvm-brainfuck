@@ -1,18 +1,15 @@
 #![allow(missing_docs)]
 
-use core::fmt;
-use std::{cmp::Reverse, collections::BTreeSet, fmt::Debug};
+use std::fmt::Debug;
 
 use hashbrown::HashMap;
-use itertools::Itertools;
 use p3_matrix::{
-    dense::{RowMajorMatrix, RowMajorMatrixView},
+    dense::RowMajorMatrixView,
     stack::VerticalPair,
-    Matrix,
 };
 use serde::{Deserialize, Serialize};
 
-use super::{Challenge, Com, OpeningProof, StarkGenericConfig, Val};
+use super::{Challenge, Com, OpeningProof, StarkGenericConfig};
 
 pub type QuotientOpenedValues<T> = Vec<T>;
 

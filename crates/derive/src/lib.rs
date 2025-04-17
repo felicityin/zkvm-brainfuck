@@ -27,7 +27,7 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
-    parse_macro_input, parse_quote, Data, DeriveInput, GenericParam, ItemFn, WherePredicate,
+    parse_macro_input, parse_quote, Data, DeriveInput, GenericParam, WherePredicate,
 };
 
 #[proc_macro_derive(AlignedBorrow)]

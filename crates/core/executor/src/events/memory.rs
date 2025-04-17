@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::opcode::Opcode;
-
 /// Memory Event.
 ///
 /// This object encapsulates the information needed to prove a memory access operation.

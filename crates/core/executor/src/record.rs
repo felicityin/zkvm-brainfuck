@@ -1,10 +1,8 @@
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
-use p3_field::{FieldAlgebra, PrimeField};
 use hashbrown::HashMap;
 
-use bf_stark::air::MachineAir;
 use bf_stark::MachineRecord;
 
 use crate::program::Program;

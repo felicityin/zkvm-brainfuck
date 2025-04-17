@@ -1,13 +1,11 @@
 use std::borrow::Borrow;
 
-use hashbrown::HashMap;
 use itertools::Itertools;
 use p3_air::{ExtensionBuilder, PairBuilder};
 use p3_field::{ExtensionField, Field, FieldAlgebra, FieldExtensionAlgebra, PrimeField};
 use p3_matrix::{dense::RowMajorMatrix, Matrix};
 use p3_maybe_rayon::prelude::*;
 use rayon_scan::ScanParallelIterator;
-use strum::IntoEnumIterator;
 
 use crate::{
     air::MultiTableAirBuilder,
@@ -95,8 +93,6 @@ pub fn generate_permutation_trace<F: PrimeField, EF: ExtensionField<F>>(
         permutation_trace_width,
     );
 
-    let mut cumulative_sum = EF::ZERO;
-
     let row_range = 0..permutation_trace_width;
 
     // Compute the permutation trace values in parallel.
@@ -144,7 +140,7 @@ pub fn generate_permutation_trace<F: PrimeField, EF: ExtensionField<F>>(
     let cumulative_sums =
         cumulative_sums.into_par_iter().scan(|a, b| *a + *b, zero).collect::<Vec<_>>();
 
-    cumulative_sum = *cumulative_sums.last().unwrap();
+    let cumulative_sum = *cumulative_sums.last().unwrap();
 
     permutation_trace.par_rows_mut().zip_eq(cumulative_sums.clone().into_par_iter()).for_each(
         |(row, cumulative_sum)| {

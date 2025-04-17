@@ -2,7 +2,7 @@ use core::borrow::{Borrow, BorrowMut};
 use hashbrown::HashMap;
 use itertools::Itertools;
 use p3_air::{Air, BaseAir};
-use p3_field::{FieldAlgebra, PrimeField, PrimeField32};
+use p3_field::{PrimeField, PrimeField32};
 use p3_matrix::{dense::RowMajorMatrix, Matrix};
 use p3_maybe_rayon::prelude::{ParallelBridge, ParallelIterator};
 

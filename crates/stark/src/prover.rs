@@ -1,7 +1,6 @@
-use std::{array, cmp::Reverse, error::Error, time::Instant};
+use std::{cmp::Reverse, error::Error, time::Instant};
 
 use core::fmt::Display;
-use hashbrown::HashMap;
 use itertools::Itertools;
 use serde::{de::DeserializeOwned, Serialize};
 use p3_air::Air;
@@ -17,7 +16,7 @@ use super::{
     VerifierConstraintFolder,
 };
 use crate::{
-    air::MachineAir, config::ZeroCommitment, lookup::LookupBuilder,
+    air::MachineAir, lookup::LookupBuilder,
     record::MachineRecord, Challenger, DebugConstraintBuilder, MachineChip, MachineProof,
     PackedChallenge, PcsProverData, ProverConstraintFolder, ShardCommitment, ShardMainData,
     ShardProof, StarkVerifyingKey, ShardOpenedValues,
@@ -117,7 +116,7 @@ pub trait MachineProver<SC: StarkGenericConfig, A: MachineAir<SC::Val>>:
     fn prove(
         &self,
         pk: &Self::DeviceProvingKey,
-        record: A::Record,
+        record: &mut A::Record,
         challenger: &mut SC::Challenger,
     ) -> Result<MachineProof<SC>, Self::Error>
     where
@@ -213,7 +212,7 @@ where
 
     fn commit(
         &self,
-        record: &A::Record,
+        _record: &A::Record,
         mut named_traces: Vec<(String, RowMajorMatrix<Val<SC>>)>,
     ) -> ShardMainData<SC, Self::DeviceMatrix, Self::DeviceProverData> {
         // Order the chips and traces by trace size (biggest first), and get the ordering map.
@@ -581,14 +580,14 @@ where
     fn prove(
         &self,
         pk: &StarkProvingKey<SC>,
-        mut record: A::Record,
+        record: &mut A::Record,
         challenger: &mut SC::Challenger,
     ) -> Result<MachineProof<SC>, Self::Error>
     where
         A: for<'a> Air<DebugConstraintBuilder<'a, Val<SC>, SC::Challenge>>,
     {
         // Generate dependencies.
-        self.machine().generate_dependencies(&mut record, None);
+        self.machine().generate_dependencies(record, None);
 
         // Observe the preprocessed commitment.
         pk.observe_into(challenger);

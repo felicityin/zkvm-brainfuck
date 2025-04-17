@@ -3,11 +3,7 @@ use p3_air::{Air, AirBuilder, BaseAir};
 use p3_field::FieldAlgebra;
 use p3_matrix::Matrix;
 
-use bf_core_executor::ByteOpcode;
-use bf_stark::{
-    air::{BaseAirBuilder, BfAirBuilder},
-    Word,
-};
+use bf_stark::air::{BaseAirBuilder, BfAirBuilder};
 
 use crate::{
     air::{U8AirBuilder, MemoryAirBuilder, BfCoreAirBuilder},

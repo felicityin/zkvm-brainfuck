@@ -1,7 +1,6 @@
-use std::{iter::once, mem::{size_of, transmute}, vec::IntoIter};
+use std::{iter::once, mem::size_of, vec::IntoIter};
 
 use p3_field::PrimeField;
-use p3_util::indices_arr;
 
 use bf_core_executor::Instruction;
 use bf_derive::AlignedBorrow;

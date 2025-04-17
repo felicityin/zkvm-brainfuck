@@ -1,4 +1,4 @@
-use std::{array, cmp::Reverse, env, fmt::Debug, time::Instant};
+use std::{cmp::Reverse, env, fmt::Debug, time::Instant};
 
 use hashbrown::HashMap;
 use itertools::Itertools;
@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use tracing::instrument;
 
 use crate::{
-    air::{MachineAir, MachineProgram},
+    air::MachineAir,
     lookup::{debug_interactions_with_all_chips, LookupKind},
     record::MachineRecord,
     DebugConstraintBuilder, ShardProof, VerifierConstraintFolder,

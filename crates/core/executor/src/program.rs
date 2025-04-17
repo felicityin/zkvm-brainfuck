@@ -2,7 +2,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use p3_field::PrimeField32;
 
-use bf_stark::air::{MachineAir, MachineProgram};
+use bf_stark::air::MachineProgram;
 
 use crate::instruction::Instruction;
 
