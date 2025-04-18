@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use hashbrown::HashMap;
+use serde::{Deserialize, Serialize};
 
 use crate::events::MemoryRecord;
 
@@ -32,14 +32,10 @@ pub struct ExecutionState {
     pub output_stream: Vec<u8>,
 }
 
-
 impl ExecutionState {
     #[must_use]
     /// Create a new [`ExecutionState`].
     pub fn new(input: Vec<u8>) -> Self {
-        Self {
-            input_stream: input,
-            ..Default::default()
-        }
+        Self { input_stream: input, ..Default::default() }
     }
 }

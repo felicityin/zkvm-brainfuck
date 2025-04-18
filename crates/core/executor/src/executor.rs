@@ -5,11 +5,15 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::events::*;
+use crate::instruction::Instruction;
+use crate::opcode::Opcode;
 use crate::program::Program;
 use crate::record::{ExecutionRecord, MemoryAccessRecord};
 use crate::state::ExecutionState;
-use crate::opcode::Opcode;
-use crate::instruction::Instruction;
+
+/// The default increment for the program counter.  Is used for all instructions except
+/// for branches and jumps.
+pub const DEFAULT_PC_INC: u32 = 1;
 
 /// An executor for the zkVM.
 ///
@@ -59,12 +63,7 @@ impl Executor {
         // Create a default record with the program.
         let record = ExecutionRecord::new(program.clone());
 
-        Self {
-            program,
-            record,
-            state: ExecutionState::new(input),
-            ..Default::default()
-        }
+        Self { program, record, state: ExecutionState::new(input), ..Default::default() }
     }
 
     /// Executes the program.
@@ -73,7 +72,7 @@ impl Executor {
         while !self.execute_cycle()? {}
 
         for (_, event) in self.memory_events.drain() {
-            self.record.memory_events.push(event);
+            self.record.cpu_memory_access.push(event);
         }
 
         Ok(())
@@ -106,29 +105,25 @@ impl Executor {
     #[allow(clippy::too_many_lines)]
     fn execute_instruction(&mut self, instruction: &Instruction) -> Result<(), ExecutionError> {
         let mut next_pc = self.state.pc.wrapping_add(1);
-        let mut mv_next: u32 = 0;
-        let mp: u32;
-        let mv: u32;
+        let mut jmp_dst: u32 = 0;
+        let mut next_mv: u8 = 0;
+        let mv: u8;
+        let mp = self.state.mem_ptr;
 
         // Execute the instruction.
         match instruction.opcode {
-            Opcode::MemStepForward | Opcode::MemStepBackward => (mp, mv)
-                = self.execute_memory(instruction),
-            Opcode::Add | Opcode::Sub => (mv_next, mp, mv) = self.execute_alu(instruction),
-            Opcode::LoopStart | Opcode::LoopEnd =>  (mp, mv, next_pc)
-                = self.execute_jump(instruction),
-            Opcode::Input | Opcode::Output => (mp, mv) = self.execute_io(instruction),
+            Opcode::MemStepForward | Opcode::MemStepBackward => {
+                mv = self.execute_memory(instruction)
+            }
+            Opcode::Add | Opcode::Sub => (next_mv, mv) = self.execute_alu(instruction),
+            Opcode::LoopStart | Opcode::LoopEnd => {
+                (mv, next_pc) = self.execute_jump(instruction);
+                jmp_dst = next_pc;
+            }
+            Opcode::Input | Opcode::Output => mv = self.execute_io(instruction),
         }
 
-        self.emit_events(
-            self.state.clk,
-            next_pc,
-            instruction,
-            mv_next,
-            mp,
-            mv,
-            self.memory_accesses,
-        );
+        self.emit_events(next_pc, instruction, jmp_dst, mp, next_mv, mv, self.memory_accesses);
 
         // Update the program counter.
         self.state.pc = next_pc;
@@ -139,7 +134,7 @@ impl Executor {
     }
 
     /// Execute a memory instruction.
-    fn execute_memory(&mut self, instruction: &Instruction) -> (u32, u32) {
+    fn execute_memory(&mut self, instruction: &Instruction) -> u8 {
         let mp = match instruction.opcode {
             Opcode::MemStepForward => self.state.mem_ptr.wrapping_add(1),
             Opcode::MemStepBackward => self.state.mem_ptr.wrapping_sub(1),
@@ -147,107 +142,119 @@ impl Executor {
         };
         let mv = self.rr_cpu(mp);
         self.state.mem_ptr = mp;
-        (mp, mv)
+        mv
     }
 
     /// Execute an ALU instruction.
-    fn execute_alu(&mut self, instruction: &Instruction) -> (u32, u32, u32) {
+    fn execute_alu(&mut self, instruction: &Instruction) -> (u8, u8) {
         let mv = self.rr_cpu(self.state.mem_ptr);
-        let mv_next = match instruction.opcode {
+        let next_mv = match instruction.opcode {
             Opcode::Add => mv.wrapping_add(1),
             Opcode::Sub => mv.wrapping_sub(1),
             _ => unreachable!(),
         };
-        self.rw_cpu(self.state.mem_ptr, mv_next);
-        (mv_next, self.state.mem_ptr, mv)
+        self.rw_cpu(self.state.mem_ptr, next_mv);
+        (next_mv, mv)
     }
 
     /// Execute a jump instruction.
-    fn execute_jump(&mut self, instruction: &Instruction) -> (u32, u32, u32) {
+    fn execute_jump(&mut self, instruction: &Instruction) -> (u8, u32) {
         let mv = self.rr_cpu(self.state.mem_ptr);
         let next_pc = match instruction.opcode {
             Opcode::LoopStart => {
                 if mv == 0 {
-                    instruction.operand
+                    instruction.op_a
                 } else {
                     self.state.pc.wrapping_add(1)
                 }
             }
             Opcode::LoopEnd => {
                 if mv != 0 {
-                    instruction.operand
+                    instruction.op_a
                 } else {
                     self.state.pc.wrapping_add(1)
                 }
             }
             _ => unreachable!(),
         };
-        (self.state.mem_ptr, mv, next_pc)
+        (mv, next_pc)
     }
 
     /// Execute an IO instruction.
-    fn execute_io(&mut self, instruction: &Instruction) -> (u32, u32) {
-        let (mp, mv) = match instruction.opcode {
+    fn execute_io(&mut self, instruction: &Instruction) -> u8 {
+        match instruction.opcode {
             Opcode::Input => {
                 let input = self.state.input_stream[self.state.input_stream_ptr];
-                self.rw_cpu(self.state.mem_ptr, input as u32);
-                (self.state.mem_ptr, input as u32)
+                self.rw_cpu(self.state.mem_ptr, input);
+                input
             }
             Opcode::Output => {
                 let output = self.rr_cpu(self.state.mem_ptr);
-                self.state.output_stream.push(output as u8);
-                (self.state.mem_ptr, output)
+                self.state.output_stream.push(output);
+                output
             }
             _ => unreachable!(),
-        };
-        (mp, mv)
+        }
     }
 
     /// Emit events for this cycle.
     #[allow(clippy::too_many_arguments)]
     fn emit_events(
         &mut self,
-        clk: u32,
         next_pc: u32,
         instruction: &Instruction,
-        mv_next: u32,
+        jmp_dst: u32,
         mp: u32,
-        mv: u32,
+        next_mv: u8,
+        mv: u8,
         memory_access: MemoryAccessRecord,
     ) {
         self.record.cpu_events.push(CpuEvent {
-            clk,
+            clk: self.state.clk,
             pc: self.state.pc,
             next_pc,
-            mv_next,
-            dst_access: memory_access.dst,
+            mp,
+            next_mp: self.state.mem_ptr,
+            next_mv,
             mv,
+            dst_access: memory_access.dst,
             src_access: memory_access.src,
         });
 
-        if instruction.opcode == Opcode::Add || instruction.opcode == Opcode::Sub {
-            self.record.add_events.push(AluEvent {
-                pc: self.state.pc,
-                opcode: instruction.opcode,
-                mv_next,
+        if instruction.is_alu_instruction() {
+            self.record.add_events.push(AluEvent::new(
+                self.state.pc,
+                instruction.opcode,
+                next_mv,
                 mv,
-            });
+            ));
         }
-
-        if instruction.opcode == Opcode::LoopStart || instruction.opcode == Opcode::LoopEnd {
-            self.record.jump_events.push(JumpEvent {
-                pc: self.state.pc,
+        if instruction.is_jump_instruction() {
+            self.record.jump_events.push(JumpEvent::new(
+                self.state.pc,
                 next_pc,
-                opcode: instruction.opcode,
-                mp,
+                instruction.opcode,
+                jmp_dst,
                 mv,
-            });
+            ));
+        }
+        if instruction.is_memory_instruction() {
+            self.record.memory_instr_events.push(MemInstrEvent::new(
+                self.state.clk,
+                self.state.pc,
+                instruction.opcode,
+                mp,
+                self.state.mem_ptr,
+            ));
+        }
+        if instruction.is_io_instruction() {
+            self.record.io_events.push(IoEvent::new(self.state.pc, instruction.opcode, mp, mv));
         }
     }
 
     /// Read the memory register.
     #[inline]
-    pub fn rr_cpu(&mut self, addr: u32) -> u32 {
+    pub fn rr_cpu(&mut self, addr: u32) -> u8 {
         // Read the address from memory and create a memory read record if in trace mode.
         let record = self.rr_traced(addr, self.state.clk);
         self.memory_accesses.src = Some(record.into());
@@ -255,7 +262,7 @@ impl Executor {
     }
 
     /// Write to a register.
-    pub fn rw_cpu(&mut self, register: u32, value: u32) {
+    pub fn rw_cpu(&mut self, register: u32, value: u8) {
         // Read the address from memory and create a memory read record.
         let record = self.rw_traced(register, value, self.state.clk + 1);
         self.memory_accesses.dst = Some(record.into());
@@ -263,8 +270,8 @@ impl Executor {
 
     /// Read a register and create an access record.
     pub fn rr_traced(&mut self, addr: u32, timestamp: u32) -> MemoryReadRecord {
-        let record: &mut MemoryRecord =  &mut self.state.memory_access.entry(addr)
-            .or_insert(MemoryRecord { value: 0, timestamp: 0 });
+        let record: &mut MemoryRecord =
+            self.state.memory_access.entry(addr).or_insert(MemoryRecord { value: 0, timestamp: 0 });
         let prev_record = *record;
         record.timestamp = timestamp;
 
@@ -288,9 +295,9 @@ impl Executor {
     }
 
     /// Write a word to a register and create an access record.
-    pub fn rw_traced(&mut self, addr: u32, value: u32, timestamp: u32) -> MemoryWriteRecord {
-        let record: &mut MemoryRecord =  &mut self.state.memory_access.entry(addr)
-            .or_insert(MemoryRecord { value: 0, timestamp: 0 });
+    pub fn rw_traced(&mut self, addr: u32, value: u8, timestamp: u32) -> MemoryWriteRecord {
+        let record: &mut MemoryRecord =
+            self.state.memory_access.entry(addr).or_insert(MemoryRecord { value: 0, timestamp: 0 });
         let prev_record = *record;
         record.value = value;
         record.timestamp = timestamp;
@@ -363,7 +370,7 @@ mod tests {
         let mut runtime = Executor::new(program, vec![]);
         runtime.run().unwrap();
 
-        assert_eq!('A' as u8, runtime.state.output_stream[0]);
+        assert_eq!(b'A', runtime.state.output_stream[0]);
     }
 
     #[test]
@@ -387,7 +394,7 @@ mod tests {
         runtime.run().unwrap();
 
         assert_eq!(9, runtime.state.pc);
-        assert_eq!(0 as u8, runtime.state.output_stream[0]);
+        assert_eq!(0_u8, runtime.state.output_stream[0]);
     }
 
     #[test]
@@ -398,11 +405,11 @@ mod tests {
         let mut runtime = Executor::new(program, vec![]);
         runtime.run().unwrap();
 
-        assert_eq!('H' as u8, runtime.state.output_stream[0]);
-        assert_eq!('e' as u8, runtime.state.output_stream[1]);
-        assert_eq!('l' as u8, runtime.state.output_stream[2]);
-        assert_eq!('l' as u8, runtime.state.output_stream[3]);
-        assert_eq!('o' as u8, runtime.state.output_stream[4]);
+        assert_eq!(b'H', runtime.state.output_stream[0]);
+        assert_eq!(b'e', runtime.state.output_stream[1]);
+        assert_eq!(b'l', runtime.state.output_stream[2]);
+        assert_eq!(b'l', runtime.state.output_stream[3]);
+        assert_eq!(b'o', runtime.state.output_stream[4]);
     }
 
     #[test]
