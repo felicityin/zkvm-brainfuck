@@ -38,12 +38,16 @@ pub struct CpuCols<T: Copy> {
     /// The next program counter value.
     pub next_pc: T,
 
+    /// The memory pointer.
     pub mp: T,
 
+    /// The next memory pointer.
     pub next_mp: T,
 
+    /// The memory value.
     pub mv: T,
 
+    /// The next memory value.
     pub next_mv: T,
 
     /// Columns related to the instruction.

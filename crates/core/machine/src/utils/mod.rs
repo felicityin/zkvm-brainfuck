@@ -9,16 +9,8 @@ use p3_field::Field;
 pub use prove::*;
 pub use span::*;
 pub use tracer::*;
-// use zkm2_curves::params::Limbs;
 
-// use crate::memory::MemoryCols;
-// use generic_array::ArrayLength;
 use p3_maybe_rayon::prelude::{ParallelBridge, ParallelIterator};
-
-// pub use zkm2_primitives::consts::{
-//     bytes_to_words_le, bytes_to_words_le_vec, num_to_comma_separated, words_to_bytes_le,
-//     words_to_bytes_le_vec,
-// };
 
 pub const fn indices_arr<const N: usize>() -> [usize; N] {
     let mut indices_arr = [0; N];
@@ -38,22 +30,6 @@ pub fn pad_to_power_of_two<const N: usize, T: Clone + Default>(values: &mut Vec<
     }
     values.resize(n_real_rows.next_power_of_two() * N, T::default());
 }
-
-// pub fn limbs_from_prev_access<T: Copy, N: ArrayLength, M: MemoryCols<T>>(
-//     cols: &[M],
-// ) -> Limbs<T, N> {
-//     let vec = cols.iter().flat_map(|access| access.prev_value().0).collect::<Vec<T>>();
-
-//     let sized = vec.try_into().unwrap_or_else(|_| panic!("failed to convert to limbs"));
-//     Limbs(sized)
-// }
-
-// pub fn limbs_from_access<T: Copy, N: ArrayLength, M: MemoryCols<T>>(cols: &[M]) -> Limbs<T, N> {
-//     let vec = cols.iter().flat_map(|access| access.value().0).collect::<Vec<T>>();
-
-//     let sized = vec.try_into().unwrap_or_else(|_| panic!("failed to convert to limbs"));
-//     Limbs(sized)
-// }
 
 /// Pad to a power of two, with an option to specify the power.
 //

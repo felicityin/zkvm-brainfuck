@@ -115,29 +115,14 @@ impl CpuChip {
             cols.next_mv_access.populate(record, blu_events);
         }
 
-        // // Populate range checks for mv.
-        // let a_bytes = cols
-        //     .mv_access
-        //     .access
-        //     .value
-        //     .0
-        //     .iter()
-        //     .map(|x| x.as_canonical_u32())
-        //     .collect::<Vec<_>>();
-        // blu_events.add_byte_lookup_event(ByteLookupEvent {
-        //     opcode: ByteOpcode::U8Range,
-        //     a1: 0,
-        //     a2: 0,
-        //     b: a_bytes[0] as u8,
-        //     c: a_bytes[1] as u8,
-        // });
-        // blu_events.add_byte_lookup_event(ByteLookupEvent {
-        //     opcode: ByteOpcode::U8Range,
-        //     a1: 0,
-        //     a2: 0,
-        //     b: a_bytes[2] as u8,
-        //     c: a_bytes[3] as u8,
-        // });
+        // Populate range checks for mv.
+        blu_events.add_byte_lookup_event(ByteLookupEvent {
+            opcode: ByteOpcode::U8Range,
+            a1: 0,
+            a2: 0,
+            b: cols.mv_access.access.value.as_canonical_u32() as u8,
+            c: 0,
+        });
 
         cols.is_mv_immutable = F::from_bool(instruction.is_mv_immutable());
 
