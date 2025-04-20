@@ -13,11 +13,8 @@ pub const NUM_BYTE_MULT_COLS: usize = size_of::<ByteMultCols<u8>>();
 #[derive(Debug, Clone, Copy, AlignedBorrow)]
 #[repr(C)]
 pub struct BytePreprocessedCols<T> {
-    /// The first byte operand.
-    pub b: T,
-
-    /// The second byte operand.
-    pub c: T,
+    /// A u8 value used for `U8Range`.
+    pub value_u8: T,
 
     /// A u16 value used for `U16Range`.
     pub value_u16: T,

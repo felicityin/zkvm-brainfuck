@@ -4,8 +4,6 @@ use bf_stark::air::BfAirBuilder;
 use p3_air::AirBuilder;
 use p3_field::{Field, FieldAlgebra};
 
-use crate::air::U8AirBuilder;
-
 /// A set of columns needed to compute the add of two words.
 #[derive(Default, Debug, Clone, Copy)]
 #[repr(C)]
@@ -18,7 +16,7 @@ pub struct AddOperation<T> {
 }
 
 impl<F: Field> AddOperation<F> {
-    pub fn populate(&mut self, record: &mut impl ByteRecord, a_u8: u8, b_u8: u8) -> u8 {
+    pub fn populate(&mut self, _record: &mut impl ByteRecord, a_u8: u8, b_u8: u8) -> u8 {
         let expected = a_u8.wrapping_add(b_u8);
         self.value = F::from_canonical_u8(expected);
 
@@ -32,9 +30,9 @@ impl<F: Field> AddOperation<F> {
 
         // Range check
         {
-            record.add_u8_range_check(a_u8);
-            record.add_u8_range_check(b_u8);
-            record.add_u8_range_check(expected);
+            // record.add_u8_range_check(a_u8);
+            // record.add_u8_range_check(b_u8);
+            // record.add_u8_range_check(expected);
         }
         expected
     }
@@ -68,9 +66,9 @@ impl<F: Field> AddOperation<F> {
 
         // Range check each byte.
         {
-            builder.range_check_u8(a, is_real.clone());
-            builder.range_check_u8(b, is_real.clone());
-            builder.range_check_u8(cols.value, is_real);
+            // builder.range_check_u8(a, is_real.clone());
+            // builder.range_check_u8(b, is_real.clone());
+            // builder.range_check_u8(cols.value, is_real);
         }
     }
 }

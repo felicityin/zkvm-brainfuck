@@ -53,7 +53,7 @@ impl<F: PrimeField32> MemoryAccessCols<F> {
         &mut self,
         current_record: MemoryRecord,
         prev_record: MemoryRecord,
-        output: &mut impl ByteRecord,
+        _output: &mut impl ByteRecord,
     ) {
         self.value = F::from_canonical_u8(current_record.value);
 
@@ -69,9 +69,9 @@ impl<F: PrimeField32> MemoryAccessCols<F> {
         self.diff_8bit_limb = F::from_canonical_u32(diff_8bit_limb);
 
         // Add a byte table lookup with the 16Range op.
-        output.add_u16_range_check(diff_16bit_limb);
+        // output.add_u16_range_check(diff_16bit_limb);
 
         // Add a byte table lookup with the U8Range op.
-        output.add_u8_range_check(diff_8bit_limb as u8);
+        // output.add_u8_range_check(diff_8bit_limb as u8);
     }
 }

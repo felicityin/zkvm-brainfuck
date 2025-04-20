@@ -34,10 +34,10 @@ impl<AB: BfAirBuilder + PairBuilder> Air<AB> for ByteChip<AB::F> {
             let mult = local_mult.multiplicities[i];
             match opcode {
                 ByteOpcode::U8Range => {
-                    builder.receive_byte(field_op, AB::F::ZERO, local.b, local.c, mult)
+                    builder.receive_byte(field_op, AB::F::ZERO, local.value_u8, mult)
                 }
                 ByteOpcode::U16Range => {
-                    builder.receive_byte(field_op, local.value_u16, AB::F::ZERO, AB::F::ZERO, mult)
+                    builder.receive_byte(field_op, local.value_u16, AB::F::ZERO, mult)
                 }
             }
         }

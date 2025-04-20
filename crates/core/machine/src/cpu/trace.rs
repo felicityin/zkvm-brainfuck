@@ -9,7 +9,6 @@ use tracing::instrument;
 
 use bf_core_executor::{
     events::{ByteLookupEvent, ByteRecord, CpuEvent, MemoryRecordEnum},
-    ByteOpcode::{self, U16Range},
     ExecutionRecord, Instruction, Program,
 };
 use bf_stark::air::MachineAir;
@@ -45,6 +44,7 @@ impl<F: PrimeField32> MachineAir<F> for CpuChip {
                         let mut byte_lookup_events = Vec::new();
                         let event = &input.cpu_events[idx];
                         let instruction = &input.program.fetch(event.pc);
+                        // println!("cpu: {:?}", event);
                         self.event_to_row(event, cols, &mut byte_lookup_events, instruction);
                     }
                 });
@@ -104,7 +104,9 @@ impl CpuChip {
         cols.next_mp = F::from_canonical_u32(event.next_mp);
 
         cols.mv = F::from_canonical_u8(event.mv);
+        cols.next_mv = F::from_canonical_u8(event.next_mv);
         *cols.mv_access.value_mut() = cols.mv;
+        *cols.next_mv_access.value_mut() = cols.next_mv;
 
         // Populate memory accesses.
         if let Some(record) = event.src_access {
@@ -113,16 +115,15 @@ impl CpuChip {
 
         if let Some(MemoryRecordEnum::Write(record)) = event.dst_access {
             cols.next_mv_access.populate(record, blu_events);
+            // let mv_access = cols.mv_access.clone();
+            // cols.mv_access.populate(record, blu_events);
+            // *cols.mv_access.value_mut() = cols.next_mv;
+            // cols.mv_access.prev_value = mv_access.prev_value;
+            // cols.mv_access.access.prev_clk = mv_access.access.prev_clk;
         }
 
         // Populate range checks for mv.
-        blu_events.add_byte_lookup_event(ByteLookupEvent {
-            opcode: ByteOpcode::U8Range,
-            a1: 0,
-            a2: 0,
-            b: cols.mv_access.access.value.as_canonical_u32() as u8,
-            c: 0,
-        });
+        // blu_events.add_u8_range_check(cols.mv_access.access.value.as_canonical_u32() as u8);
 
         cols.is_mv_immutable = F::from_bool(instruction.is_mv_immutable());
 
@@ -140,20 +141,14 @@ impl CpuChip {
         &self,
         cols: &mut CpuCols<F>,
         event: &CpuEvent,
-        blu_events: &mut impl ByteRecord,
+        _blu_events: &mut impl ByteRecord,
     ) {
         let clk_16bit_limb = (event.clk & 0xffff) as u16;
         let clk_8bit_limb = ((event.clk >> 16) & 0xff) as u8;
         cols.clk_16bit_limb = F::from_canonical_u16(clk_16bit_limb);
         cols.clk_8bit_limb = F::from_canonical_u8(clk_8bit_limb);
 
-        blu_events.add_byte_lookup_event(ByteLookupEvent::new(U16Range, clk_16bit_limb, 0, 0, 0));
-        blu_events.add_byte_lookup_event(ByteLookupEvent::new(
-            ByteOpcode::U8Range,
-            0,
-            0,
-            0,
-            clk_8bit_limb,
-        ));
+        // blu_events.add_u16_range_check(clk_16bit_limb);
+        // blu_events.add_u8_range_check(clk_8bit_limb);
     }
 }

@@ -12,7 +12,7 @@ pub struct AluEvent {
     /// The opcode.
     pub opcode: Opcode,
     /// The output operand.
-    pub mv_next: u8,
+    pub next_mv: u8,
     /// The input operand.
     pub mv: u8,
 }
@@ -20,8 +20,8 @@ pub struct AluEvent {
 impl AluEvent {
     /// Create a new [`AluEvent`].
     #[must_use]
-    pub fn new(pc: u32, opcode: Opcode, mv_next: u8, mv: u8) -> Self {
-        Self { pc, opcode, mv_next, mv }
+    pub fn new(pc: u32, opcode: Opcode, next_mv: u8, mv: u8) -> Self {
+        Self { pc, opcode, next_mv, mv }
     }
 }
 

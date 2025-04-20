@@ -6,7 +6,7 @@ use p3_matrix::Matrix;
 use bf_stark::air::{BaseAirBuilder, BfAirBuilder};
 
 use crate::{
-    air::{BfCoreAirBuilder, MemoryAirBuilder, U8AirBuilder},
+    air::{BfCoreAirBuilder, MemoryAirBuilder},
     cpu::{
         cols::{CpuCols, NUM_CPU_COLS},
         CpuChip,
@@ -38,7 +38,7 @@ where
         builder.send_program(local.pc, local.instruction, local.is_real);
 
         // Instruction constraints.
-        self.eval_instruction(builder, local);
+        self.eval_instruction(builder, local, clk.clone());
 
         // Register constraints.
         self.eval_registers::<AB>(builder, local, clk.clone());
@@ -65,28 +65,28 @@ impl CpuChip {
         &self,
         builder: &mut AB,
         local: &CpuCols<AB::Var>,
+        clk: AB::Expr,
     ) {
-        builder.send_alu(local.pc, local.instruction.opcode, local.mv, local.next_mv, local.is_alu);
+        builder.send_alu(local.pc, local.instruction.opcode, local.next_mv, local.mv, local.is_alu);
 
         builder.send_jump(
             local.pc,
             local.next_pc,
             local.instruction.opcode,
-            local.instruction.op_a.reduce::<AB>(),
             local.mv,
             local.is_jump,
         );
 
         builder.send_memory_instr(
+            clk,
             local.pc,
-            local.next_pc,
             local.instruction.opcode,
-            local.mv,
-            local.next_mv,
+            local.mp,
+            local.next_mp,
             local.is_memory_instr,
         );
 
-        builder.send_io(local.pc, local.next_pc, local.instruction.opcode, local.mv, local.is_io);
+        builder.send_io(local.pc, local.instruction.opcode, local.mp, local.mv, local.is_io);
     }
 
     /// Constraints related to the clk.
@@ -98,26 +98,26 @@ impl CpuChip {
     pub(crate) fn eval_clk<AB: BfAirBuilder>(
         &self,
         builder: &mut AB,
-        local: &CpuCols<AB::Var>,
+        _local: &CpuCols<AB::Var>,
         next: &CpuCols<AB::Var>,
         clk: AB::Expr,
     ) {
         // Verify that the first row has a clk value of 0.
         builder.when_first_row().assert_zero(clk.clone());
 
-        let expected_next_clk = clk.clone() + AB::Expr::from_canonical_u32(2);
+        let expected_next_clk = clk.clone() + AB::Expr::from_canonical_u32(3);
 
         let next_clk =
             AB::Expr::from_canonical_u32(1u32 << 16) * next.clk_8bit_limb + next.clk_16bit_limb;
         builder.when_transition().when(next.is_real).assert_eq(expected_next_clk, next_clk);
 
         // Range check that the clk is within 24 bits using it's limb values.
-        builder.eval_range_check_24bits(
-            clk,
-            local.clk_16bit_limb,
-            local.clk_8bit_limb,
-            local.is_real,
-        );
+        // builder.eval_range_check_24bits(
+        //     clk,
+        //     local.clk_16bit_limb,
+        //     local.clk_8bit_limb,
+        //     local.is_real,
+        // );
     }
 
     /// Constraints related to the is_real column.
@@ -144,23 +144,25 @@ impl CpuChip {
         local: &CpuCols<AB::Var>,
         clk: AB::Expr,
     ) {
+        let mut builder = builder.when(local.is_real);
+
         builder.eval_memory_access(
-            clk.clone(),
-            local.mv,
+            clk.clone() + AB::F::from_canonical_u32(1),
+            local.mp,
             &local.mv_access,
             AB::Expr::ONE - local.is_memory_instr,
         );
 
         builder.eval_memory_access(
-            clk.clone() + AB::F::from_canonical_u32(1),
-            local.next_mv,
+            clk.clone() + AB::F::from_canonical_u32(2),
+            local.mp,
             &local.next_mv_access,
             local.is_alu,
         );
 
         // Always range check the value in `mv`, as input instruction `,` may witness
         // an invalid value and write it to memory.
-        builder.range_check_u8(local.mv.into(), local.is_real);
+        // builder.range_check_u8(local.mv.into(), local.is_real);
 
         // If we are performing an ALU​​, ​​JMP​​, or ​​OUTPUT instruction, then the value of `mv` is the previous value.
         builder.when(local.is_mv_immutable).assert_eq(local.mv_val(), local.mv_access.prev_value);

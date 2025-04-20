@@ -37,12 +37,6 @@ pub enum LookupKind {
 
     /// Lookup with the byte lookup table for byte operations.
     Byte = 7,
-
-    /// Requesting a range check for a given value and range.
-    Range = 8,
-
-    /// Lookup with the field op table for field operations.
-    Field = 9,
 }
 
 impl LookupKind {
@@ -57,8 +51,6 @@ impl LookupKind {
             LookupKind::MemInstr,
             LookupKind::IO,
             LookupKind::Byte,
-            LookupKind::Range,
-            LookupKind::Field,
         ]
     }
 }
@@ -95,8 +87,6 @@ impl Display for LookupKind {
             LookupKind::MemInstr => write!(f, "MemInstr"),
             LookupKind::IO => write!(f, "I/O"),
             LookupKind::Byte => write!(f, "Byte"),
-            LookupKind::Range => write!(f, "Range"),
-            LookupKind::Field => write!(f, "Field"),
         }
     }
 }

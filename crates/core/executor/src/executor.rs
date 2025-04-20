@@ -129,7 +129,7 @@ impl Executor {
         self.state.pc = next_pc;
 
         // Update the clk to the next cycle.
-        self.state.clk += 2;
+        self.state.clk += 3;
         Ok(())
     }
 
@@ -256,7 +256,7 @@ impl Executor {
     #[inline]
     pub fn rr_cpu(&mut self, addr: u32) -> u8 {
         // Read the address from memory and create a memory read record if in trace mode.
-        let record = self.rr_traced(addr, self.state.clk);
+        let record = self.rr_traced(addr, self.state.clk + 1);
         self.memory_accesses.src = Some(record.into());
         record.value
     }
@@ -264,7 +264,7 @@ impl Executor {
     /// Write to a register.
     pub fn rw_cpu(&mut self, register: u32, value: u8) {
         // Read the address from memory and create a memory read record.
-        let record = self.rw_traced(register, value, self.state.clk + 1);
+        let record = self.rw_traced(register, value, self.state.clk + 2);
         self.memory_accesses.dst = Some(record.into());
     }
 
@@ -312,6 +312,9 @@ impl Executor {
                 initial_mem_access: prev_record,
                 final_mem_access: *record,
             });
+
+        // println!("self.state.memory_access: {:?}", &mut self.state.memory_access);
+        // println!("self.memory_events: {:?}", &mut self.memory_events);
 
         // Construct the memory write record.
         MemoryWriteRecord {

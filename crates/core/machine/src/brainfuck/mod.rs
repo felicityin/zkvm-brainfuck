@@ -65,14 +65,17 @@ impl<F: PrimeField32> BfAir<F> {
         let jump = Chip::new(BfAir::Jump(JumpChip));
         chips.push(jump);
 
-        let memory = Chip::new(BfAir::Memory(MemoryChip::new()));
-        chips.push(memory);
+        // let memory = Chip::new(BfAir::Memory(MemoryChip::new()));
+        // chips.push(memory);
 
         let byte = Chip::new(BfAir::ByteLookup(ByteChip::default()));
         chips.push(byte);
 
         let memory_instructions = Chip::new(BfAir::MemoryInstrs(MemoryInstructionsChip));
         chips.push(memory_instructions);
+
+        let io = Chip::new(BfAir::IO(IoChip));
+        chips.push(io);
 
         chips
     }
@@ -112,6 +115,7 @@ pub mod tests {
         setup_logger();
         let instructions = vec![
             Instruction::new(Opcode::Add),
+            Instruction::new(Opcode::Add),
             Instruction::new(Opcode::Sub),
             Instruction::new(Opcode::MemStepForward),
             Instruction::new(Opcode::MemStepBackward),
@@ -122,54 +126,63 @@ pub mod tests {
 
     #[test]
     fn test_add_sub_prove() {
-        let program = Program::from("++-.").unwrap();
+        setup_logger();
+        let program = Program::from("++-").unwrap();
         run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
     }
 
     #[test]
     fn test_mem_prove() {
+        setup_logger();
         let program = Program::from(">><").unwrap();
         run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
     }
 
     #[test]
     fn test_jmp_prove() {
+        setup_logger();
         let program = Program::from("[----]").unwrap();
         run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
     }
 
     #[test]
     fn test_io_prove() {
+        setup_logger();
         let program = Program::from(",.").unwrap();
         run_test::<CpuProver<_, _>>(program, vec![1]).unwrap();
     }
 
     #[test]
     fn test_printa_prove() {
+        setup_logger();
         let program = Program::from(PRINTA_BF).unwrap();
         run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
     }
 
     #[test]
     fn test_move_prove() {
+        setup_logger();
         let program = Program::from(MOVE_BF).unwrap();
         run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
     }
 
     #[test]
     fn test_loop_prove() {
+        setup_logger();
         let program = Program::from(LOOP_BF).unwrap();
         run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
     }
 
     #[test]
     fn test_hello_prove() {
+        setup_logger();
         let program = Program::from(HELLO_BF).unwrap();
         run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
     }
 
     #[test]
     fn test_fibo_prove() {
+        setup_logger();
         let program = Program::from(FIBO_BF).unwrap();
         run_test::<CpuProver<_, _>>(program, vec![17]).unwrap();
     }

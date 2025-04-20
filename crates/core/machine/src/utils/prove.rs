@@ -36,6 +36,8 @@ where
     // Setup the runtime.
     let mut runtime = Executor::new(program, input);
 
+    runtime.run().map_err(BfCoreProverError::ExecutionError)?;
+
     // Prove the program.
     let mut challenger = prover.config().challenger();
     let proving_start = Instant::now();
@@ -52,7 +54,7 @@ where
         Size::from_bytes(nb_bytes),
     );
 
-    #[cfg(feature = "debug")]
+    // #[cfg(feature = "debug")]
     {
         let mut challenger = prover.machine().config().challenger();
         let pk_host = prover.pk_to_host(pk);

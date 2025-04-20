@@ -27,14 +27,14 @@ pub struct AddSubCols<T> {
     pub pc: T,
 
     /// Instance of `AddOperation` to handle addition logic in `AddSubChip`'s ALU operations.
-    /// It's result will be `mv_next` for the add operation and `mv` for the sub operation.
+    /// It's result will be `next_mv` for the add operation and `mv` for the sub operation.
     pub add_operation: AddOperation<T>,
 
-    /// The next memory value.
-    pub next_mv: T,
+    /// The first input operand.  This will be `mv` for add operations and `next_mv` for sub operations.
+    pub operand_1: T,
 
-    /// The memory value.
-    pub mv: T,
+    /// The second input operand.  This will be 1 for both operations.
+    pub operand_2: T,
 
     /// Boolean to indicate whether the row is for an add operation.
     pub is_add: T,
@@ -135,12 +135,12 @@ impl AddSubChip {
         cols.is_sub = F::from_bool(matches!(event.opcode, Opcode::Sub));
 
         let is_add = event.opcode == Opcode::Add;
-        let operand_1 = if is_add { event.mv_next } else { event.mv };
+        let operand_1 = if is_add { event.mv } else { event.next_mv };
         let operand_2 = 1;
-
         cols.add_operation.populate(blu, operand_1, operand_2);
-        cols.next_mv = F::from_canonical_u8(operand_1);
-        cols.mv = F::from_canonical_u8(operand_2);
+
+        cols.operand_1 = F::from_canonical_u8(operand_1);
+        cols.operand_2 = F::from_canonical_u8(operand_2);
     }
 }
 
@@ -167,8 +167,8 @@ where
         // Evaluate the addition operation.
         AddOperation::<AB::F>::eval(
             builder,
-            local.next_mv,
-            local.mv,
+            local.operand_1,
+            local.operand_2,
             local.add_operation,
             local.is_add + local.is_sub,
         );
@@ -177,14 +177,14 @@ where
             local.pc,
             Opcode::Add.as_field::<AB::F>(),
             local.add_operation.value,
-            local.mv,
+            local.operand_1,
             local.is_add,
         );
 
         builder.receive_alu(
             local.pc,
-            Opcode::Add.as_field::<AB::F>(),
-            local.mv,
+            Opcode::Sub.as_field::<AB::F>(),
+            local.operand_1,
             local.add_operation.value,
             local.is_sub,
         );

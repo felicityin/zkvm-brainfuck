@@ -1,5 +1,5 @@
 [package]
-name = "bf-core-matchine"
+name = "bf-core-machine"
 description = "Brainfuck matchine"
 version = { workspace = true }
 edition = { workspace = true }

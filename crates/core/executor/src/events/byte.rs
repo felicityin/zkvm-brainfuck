@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::ByteOpcode;
 
 /// The number of different byte operations.
-pub const NUM_BYTE_OPS: usize = 1;
+pub const NUM_BYTE_OPS: usize = 2;
 
 /// Byte Lookup Event.
 ///
@@ -18,13 +18,9 @@ pub struct ByteLookupEvent {
     /// The opcode.
     pub opcode: ByteOpcode,
     /// The first operand.
-    pub a1: u16,
+    pub value_u16: u16,
     /// The second operand.
-    pub a2: u8,
-    /// The third operand.
-    pub b: u8,
-    /// The fourth operand.
-    pub c: u8,
+    pub value_u8: u8,
 }
 
 /// A type that can record byte lookup events.
@@ -47,24 +43,20 @@ pub trait ByteRecord {
     }
 
     /// Adds a `ByteLookupEvent` to verify `a` is indeed u16.
-    fn add_u16_range_check(&mut self, a: u16) {
+    fn add_u16_range_check(&mut self, value_u16: u16) {
         self.add_byte_lookup_event(ByteLookupEvent {
             opcode: ByteOpcode::U16Range,
-            a1: a,
-            a2: 0,
-            b: 0,
-            c: 0,
+            value_u16,
+            value_u8: 0,
         });
     }
 
     /// Adds `ByteLookupEvent`s to verify that all the bytes in the input slice are indeed bytes.
-    fn add_u8_range_check(&mut self, a: u8) {
+    fn add_u8_range_check(&mut self, value_u8: u8) {
         self.add_byte_lookup_event(ByteLookupEvent {
             opcode: ByteOpcode::U8Range,
-            a1: 0,
-            a2: 0,
-            b: a,
-            c: 0,
+            value_u16: 0,
+            value_u8,
         });
     }
 
@@ -78,8 +70,8 @@ pub trait ByteRecord {
 impl ByteLookupEvent {
     /// Creates a new `ByteLookupEvent`.
     #[must_use]
-    pub fn new(opcode: ByteOpcode, a1: u16, a2: u8, b: u8, c: u8) -> Self {
-        Self { opcode, a1, a2, b, c }
+    pub fn new(opcode: ByteOpcode, value_u16: u16, value_u8: u8) -> Self {
+        Self { opcode, value_u16, value_u8 }
     }
 }
 
@@ -115,7 +107,7 @@ impl ByteOpcode {
     /// Get all the byte opcodes.
     #[must_use]
     pub fn all() -> Vec<Self> {
-        let opcodes = vec![ByteOpcode::U8Range];
+        let opcodes = vec![ByteOpcode::U8Range, ByteOpcode::U16Range];
         debug_assert_eq!(opcodes.len(), NUM_BYTE_OPS);
         opcodes
     }

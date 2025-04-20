@@ -15,7 +15,7 @@ use self::cols::{BytePreprocessedCols, NUM_BYTE_PREPROCESSED_COLS};
 use crate::{bytes::trace::NUM_ROWS, utils::zeroed_f_vec};
 
 /// The number of different byte operations.
-pub const NUM_BYTE_OPS: usize = 10;
+pub const NUM_BYTE_OPS: usize = 2;
 
 /// A chip for computing byte operations.
 ///
@@ -42,18 +42,16 @@ impl<F: Field> ByteChip<F> {
         for (row_index, (b, c)) in (0..=u8::MAX).cartesian_product(0..=u8::MAX).enumerate() {
             let col: &mut BytePreprocessedCols<F> = initial_trace.row_mut(row_index).borrow_mut();
 
-            // Set the values of `b` and `c`.
-            col.b = F::from_canonical_u8(b);
-            col.c = F::from_canonical_u8(c);
+            col.value_u8 = F::from_canonical_u8(b);
 
             // Iterate over all operations for results and updating the table map.
             for opcode in opcodes.iter() {
                 match opcode {
-                    ByteOpcode::U8Range => ByteLookupEvent::new(*opcode, 0, 0, b, c),
+                    ByteOpcode::U8Range => ByteLookupEvent::new(*opcode, 0, b),
                     ByteOpcode::U16Range => {
                         let v = ((b as u32) << 8) + c as u32;
                         col.value_u16 = F::from_canonical_u32(v);
-                        ByteLookupEvent::new(*opcode, v as u16, 0, 0, 0)
+                        ByteLookupEvent::new(*opcode, v as u16, 0)
                     }
                 };
             }

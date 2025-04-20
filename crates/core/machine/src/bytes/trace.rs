@@ -45,10 +45,10 @@ impl<F: PrimeField32> MachineAir<F> for ByteChip<F> {
             RowMajorMatrix::new(zeroed_f_vec(NUM_BYTE_MULT_COLS * NUM_ROWS), NUM_BYTE_MULT_COLS);
 
         for (lookup, mult) in input.byte_lookups.iter() {
-            let row = if lookup.opcode != ByteOpcode::U16Range {
-                (((lookup.b as u16) << 8) + lookup.c as u16) as usize
+            let row = if lookup.opcode == ByteOpcode::U16Range {
+                lookup.value_u16 as usize
             } else {
-                lookup.a1 as usize
+                lookup.value_u8 as usize
             };
             let index = lookup.opcode as usize;
 

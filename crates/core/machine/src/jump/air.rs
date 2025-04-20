@@ -76,7 +76,6 @@ where
             local.pc.reduce::<AB>(),
             local.next_pc.reduce::<AB>(),
             opcode,
-            local.dst.reduce::<AB>(),
             local.mv,
             is_real,
         );

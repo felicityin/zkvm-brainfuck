@@ -16,14 +16,14 @@ pub struct CpuEvent {
     pub next_pc: u32,
     /// Memory pointer.
     pub mp: u32,
-    /// Memory pointer.
+    /// For memory instructions.
     pub next_mp: u32,
-    /// For ALU instructions.
-    pub next_mv: u8,
     /// The memory value.
     pub mv: u8,
-    /// The next_mv memory record.
-    pub dst_access: Option<MemoryRecordEnum>,
+    /// For ALU instructions.
+    pub next_mv: u8,
     /// The mv memory record.
     pub src_access: Option<MemoryRecordEnum>,
+    /// The next_mv memory record.
+    pub dst_access: Option<MemoryRecordEnum>,
 }

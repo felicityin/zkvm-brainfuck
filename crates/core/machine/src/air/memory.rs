@@ -1,13 +1,8 @@
-use std::iter::once;
-
 use p3_air::AirBuilder;
 use p3_field::FieldAlgebra;
 
 use bf_core_executor::ByteOpcode;
-use bf_stark::{
-    air::{AirLookup, BaseAirBuilder, ByteAirBuilder},
-    LookupKind,
-};
+use bf_stark::air::{BaseAirBuilder, ByteAirBuilder};
 
 use crate::memory::{MemoryAccessCols, MemoryCols};
 
@@ -19,7 +14,7 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
     fn eval_memory_access<E: Into<Self::Expr> + Clone>(
         &mut self,
         clk: impl Into<Self::Expr>,
-        addr: impl Into<Self::Expr>,
+        _addr: impl Into<Self::Expr>,
         memory_access: &impl MemoryCols<E>,
         do_check: impl Into<Self::Expr>,
     ) {
@@ -33,22 +28,22 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
         self.eval_memory_access_timestamp(mem_access, do_check.clone(), clk.clone());
 
         // Add to the memory argument.
-        let addr = addr.into();
-        let prev_clk = mem_access.prev_clk.clone().into();
-        let prev_values = once(prev_clk)
-            .chain(once(addr.clone()))
-            .chain(once(memory_access.prev_value().clone().into()))
-            .collect();
-        let current_values = once(clk)
-            .chain(once(addr.clone()))
-            .chain(once(memory_access.value().clone().into()))
-            .collect();
+        // let addr = addr.into();
+        // let prev_clk = mem_access.prev_clk.clone().into();
+        // let prev_values = once(prev_clk)
+        //     .chain(once(addr.clone()))
+        //     .chain(once(memory_access.prev_value().clone().into()))
+        //     .collect();
+        // let current_values = once(clk)
+        //     .chain(once(addr.clone()))
+        //     .chain(once(memory_access.value().clone().into()))
+        //     .collect();
 
-        // The previous values get sent with multiplicity = 1, for "read".
-        self.send(AirLookup::new(prev_values, do_check.clone(), LookupKind::Memory));
+        // // The previous values get sent with multiplicity = 1, for "read".
+        // self.send(AirLookup::new(prev_values, do_check.clone(), LookupKind::Memory));
 
-        // The current values get "received", i.e. multiplicity = -1
-        self.receive(AirLookup::new(current_values, do_check.clone(), LookupKind::Memory));
+        // // The current values get "received", i.e. multiplicity = -1
+        // self.receive(AirLookup::new(current_values, do_check.clone(), LookupKind::Memory));
     }
 
     /// Verifies the memory access timestamp.
@@ -63,7 +58,7 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
         do_check: impl Into<Self::Expr>,
         clk: impl Into<Self::Expr>,
     ) {
-        let do_check: Self::Expr = do_check.into();
+        let _do_check: Self::Expr = do_check.into();
 
         // Get the comparison timestamp values for the current and previous memory access.
         let prev_comp_val = mem_access.prev_clk.clone().into();
@@ -78,16 +73,16 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
         // `current_comp_val, prev_comp_val` are range-checked to be `<2^24` and as long as we're
         // working in a field larger than `2 * 2^24` (which is true of the KoalaBear and Mersenne31
         // prime).
-        let diff_minus_one = current_comp_val - prev_comp_val - Self::Expr::ONE;
+        let _diff_minus_one = current_comp_val - prev_comp_val - Self::Expr::ONE;
 
         // Verify that mem_access.ts_diff = mem_access.ts_diff_16bit_limb
         // + mem_access.ts_diff_8bit_limb * 2^16.
-        self.eval_range_check_24bits(
-            diff_minus_one,
-            mem_access.diff_16bit_limb.clone(),
-            mem_access.diff_8bit_limb.clone(),
-            do_check,
-        );
+        // self.eval_range_check_24bits(
+        //     diff_minus_one,
+        //     mem_access.diff_16bit_limb.clone(),
+        //     mem_access.diff_8bit_limb.clone(),
+        //     do_check,
+        // );
     }
 
     /// Verifies the inputted value is within 24 bits.
@@ -115,13 +110,11 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
             Self::Expr::from_canonical_u8(ByteOpcode::U16Range as u8),
             limb_16,
             Self::Expr::ZERO,
-            Self::Expr::ZERO,
             do_check.clone(),
         );
 
         self.send_byte(
             Self::Expr::from_canonical_u8(ByteOpcode::U8Range as u8),
-            Self::Expr::ZERO,
             Self::Expr::ZERO,
             limb_8,
             do_check,

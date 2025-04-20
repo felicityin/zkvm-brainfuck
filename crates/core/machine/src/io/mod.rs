@@ -35,7 +35,7 @@ struct IoCols<T> {
     pub is_output: T,
 }
 
-pub struct IoChip {}
+pub struct IoChip;
 
 impl Default for IoChip {
     fn default() -> Self {

@@ -53,11 +53,10 @@ pub trait ByteAirBuilder: BaseAirBuilder {
         opcode: impl Into<Self::Expr>,
         a: impl Into<Self::Expr>,
         b: impl Into<Self::Expr>,
-        c: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
         self.send(AirLookup::new(
-            vec![opcode.into(), a.into(), b.into(), c.into()],
+            vec![opcode.into(), a.into(), b.into()],
             multiplicity.into(),
             LookupKind::Byte,
         ));
@@ -69,11 +68,10 @@ pub trait ByteAirBuilder: BaseAirBuilder {
         opcode: impl Into<Self::Expr>,
         a: impl Into<Self::Expr>,
         b: impl Into<Self::Expr>,
-        c: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
         self.receive(AirLookup::new(
-            vec![opcode.into(), a.into(), b.into(), c.into()],
+            vec![opcode.into(), a.into(), b.into()],
             multiplicity.into(),
             LookupKind::Byte,
         ));
@@ -124,14 +122,12 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
         pc: impl Into<Self::Expr>,
         next_pc: impl Into<Self::Expr>,
         opcode: impl Into<Self::Expr>,
-        target_pc: impl Into<Self::Expr>,
         mv: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
         let values = once(pc.into())
             .chain(once(next_pc.into()))
             .chain(once(opcode.into()))
-            .chain(once(target_pc.into()))
             .chain(once(mv.into()))
             .collect();
 
@@ -144,14 +140,12 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
         pc: impl Into<Self::Expr>,
         next_pc: impl Into<Self::Expr>,
         opcode: impl Into<Self::Expr>,
-        target_pc: impl Into<Self::Expr>,
         mv: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
         let values = once(pc.into())
             .chain(once(next_pc.into()))
             .chain(once(opcode.into()))
-            .chain(once(target_pc.into()))
             .chain(once(mv.into()))
             .collect();
 
@@ -161,15 +155,15 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
     /// Sends a memory pointer operation to be processed.
     fn send_memory_instr(
         &mut self,
+        clk: impl Into<Self::Expr>,
         pc: impl Into<Self::Expr>,
-        next_pc: impl Into<Self::Expr>,
         opcode: impl Into<Self::Expr>,
         mp: impl Into<Self::Expr>,
         next_mp: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
-        let values = once(pc.into())
-            .chain(once(next_pc.into()))
+        let values = once(clk.into())
+            .chain(once(pc.into()))
             .chain(once(opcode.into()))
             .chain(once(mp.into()))
             .chain(once(next_mp.into()))
@@ -181,15 +175,15 @@ pub trait InstructionAirBuilder: BaseAirBuilder {
     /// Receives an ALU operation to be processed.
     fn receive_memory_instr(
         &mut self,
+        clk: impl Into<Self::Expr>,
         pc: impl Into<Self::Expr>,
-        next_pc: impl Into<Self::Expr>,
         opcode: impl Into<Self::Expr>,
         mp: impl Into<Self::Expr>,
         next_mp: impl Into<Self::Expr>,
         multiplicity: impl Into<Self::Expr>,
     ) {
-        let values = once(pc.into())
-            .chain(once(next_pc.into()))
+        let values = once(clk.into())
+            .chain(once(pc.into()))
             .chain(once(opcode.into()))
             .chain(once(mp.into()))
             .chain(once(next_mp.into()))

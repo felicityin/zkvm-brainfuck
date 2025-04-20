@@ -14,7 +14,9 @@ members = [
     "crates/core/machine",
     "crates/derive",
     "crates/primitives",
+    "crates/prover",
     "crates/test-artifacts",
+    "crates/sdk",
     "crates/stark",
 ]
 resolver = "2"
@@ -23,8 +25,10 @@ resolver = "2"
 bf-core-executor = { path = "crates/core/executor" }
 bf-core-machine = { path = "crates/core/machine" }
 bf-derive = { path = "crates/derive" }
+bf-sdk = { path = "crates/sdk" }
 bf-stark = { path = "crates/stark" }
 bf-primitives = { path = "crates/primitives" }
+bf-prover = { path = "crates/prover" }
 
 p3-air = { git = "https://github.com/zkMIPS/Plonky3" }
 p3-field = { git = "https://github.com/zkMIPS/Plonky3" }
