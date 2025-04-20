@@ -11,28 +11,22 @@ zkvm-brainfuck is a ZK-VM for the Brainfuck language.
 # Usage
 
 ```rust
-#[test]
-fn test_execute() {
-    setup_logger();
-    let client = ProverClient::new();
-    let elf = test_artifacts::FIBO_BF;
-    let stdin = vec![17];
-    let output = client.execute(elf, stdin).run().unwrap();
-    assert_eq!(85, output[0]);
-}
+use bf_sdk::ProverClient;
 
-#[test]
-fn test_e2e_core() {
-    setup_logger();
-    let client = ProverClient::new();
-    let elf = test_artifacts::FIBO_BF;
-    let (pk, vk) = client.setup(elf);
-    let stdin = vec![17];
+setup_logger();
+let client = ProverClient::new();
+let elf = test_artifacts::FIBO_BF;
+let stdin = vec![17];
 
-    // Generate proof & verify.
-    let proof = client.prove(&pk, stdin).run().unwrap();
-    client.verify(&proof, &vk).unwrap();
-}
+// Execute
+let output = client.execute(elf, stdin).run().unwrap();
+assert_eq!(85, output[0]);
+
+let (pk, vk) = client.setup(elf);
+
+// Generate proof & verify.
+let proof = client.prove(&pk, stdin).run().unwrap();
+client.verify(&proof, &vk).unwrap();
 ```
 
 # Test
