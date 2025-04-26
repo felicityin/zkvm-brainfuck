@@ -44,7 +44,6 @@ impl<F: PrimeField32> MachineAir<F> for CpuChip {
                         let mut byte_lookup_events = Vec::new();
                         let event = &input.cpu_events[idx];
                         let instruction = &input.program.fetch(event.pc);
-                        // println!("cpu: {:?}", event);
                         self.event_to_row(event, cols, &mut byte_lookup_events, instruction);
                     }
                 });
@@ -109,17 +108,12 @@ impl CpuChip {
         *cols.next_mv_access.value_mut() = cols.next_mv;
 
         // Populate memory accesses.
-        if let Some(record) = event.src_access {
+        if let Some(record) = event.mv_access {
             cols.mv_access.populate(record, blu_events);
         }
 
-        if let Some(MemoryRecordEnum::Write(record)) = event.dst_access {
+        if let Some(MemoryRecordEnum::Write(record)) = event.next_mv_access {
             cols.next_mv_access.populate(record, blu_events);
-            // let mv_access = cols.mv_access.clone();
-            // cols.mv_access.populate(record, blu_events);
-            // *cols.mv_access.value_mut() = cols.next_mv;
-            // cols.mv_access.prev_value = mv_access.prev_value;
-            // cols.mv_access.access.prev_clk = mv_access.access.prev_clk;
         }
 
         // Populate range checks for mv.

@@ -105,7 +105,7 @@ impl CpuChip {
         // Verify that the first row has a clk value of 0.
         builder.when_first_row().assert_zero(clk.clone());
 
-        let expected_next_clk = clk.clone() + AB::Expr::from_canonical_u32(3);
+        let expected_next_clk = clk.clone() + AB::Expr::from_canonical_u32(2);
 
         let next_clk =
             AB::Expr::from_canonical_u32(1u32 << 16) * next.clk_8bit_limb + next.clk_16bit_limb;
@@ -144,13 +144,11 @@ impl CpuChip {
         local: &CpuCols<AB::Var>,
         clk: AB::Expr,
     ) {
-        let mut builder = builder.when(local.is_real);
-
         builder.eval_memory_access(
             clk.clone() + AB::F::from_canonical_u32(1),
             local.mp,
             &local.mv_access,
-            AB::Expr::ONE - local.is_memory_instr,
+            local.is_real - local.is_memory_instr,
         );
 
         builder.eval_memory_access(

@@ -1,7 +1,10 @@
+use std::iter::once;
+
 use p3_air::AirBuilder;
 use p3_field::FieldAlgebra;
 
 use bf_core_executor::ByteOpcode;
+use bf_stark::{AirLookup, LookupKind};
 use bf_stark::air::{BaseAirBuilder, ByteAirBuilder};
 
 use crate::memory::{MemoryAccessCols, MemoryCols};
@@ -14,7 +17,7 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
     fn eval_memory_access<E: Into<Self::Expr> + Clone>(
         &mut self,
         clk: impl Into<Self::Expr>,
-        _addr: impl Into<Self::Expr>,
+        addr: impl Into<Self::Expr>,
         memory_access: &impl MemoryCols<E>,
         do_check: impl Into<Self::Expr>,
     ) {
@@ -28,22 +31,22 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
         self.eval_memory_access_timestamp(mem_access, do_check.clone(), clk.clone());
 
         // Add to the memory argument.
-        // let addr = addr.into();
-        // let prev_clk = mem_access.prev_clk.clone().into();
-        // let prev_values = once(prev_clk)
-        //     .chain(once(addr.clone()))
-        //     .chain(once(memory_access.prev_value().clone().into()))
-        //     .collect();
-        // let current_values = once(clk)
-        //     .chain(once(addr.clone()))
-        //     .chain(once(memory_access.value().clone().into()))
-        //     .collect();
+        let addr = addr.into();
+        let prev_clk = mem_access.prev_clk.clone().into();
+        let prev_values = once(prev_clk)
+            .chain(once(addr.clone()))
+            .chain(once(memory_access.prev_value().clone().into()))
+            .collect();
+        let current_values: Vec<<Self as AirBuilder>::Expr> = once(clk)
+            .chain(once(addr.clone()))
+            .chain(once(memory_access.value().clone().into()))
+            .collect();
 
-        // // The previous values get sent with multiplicity = 1, for "read".
-        // self.send(AirLookup::new(prev_values, do_check.clone(), LookupKind::Memory));
+        // The previous values get sent with multiplicity = 1, for "read".
+        self.send(AirLookup::new(prev_values, do_check.clone(), LookupKind::Memory));
 
-        // // The current values get "received", i.e. multiplicity = -1
-        // self.receive(AirLookup::new(current_values, do_check.clone(), LookupKind::Memory));
+        // The current values get "received", i.e. multiplicity = -1
+        self.receive(AirLookup::new(current_values, do_check, LookupKind::Memory));
     }
 
     /// Verifies the memory access timestamp.

@@ -37,9 +37,9 @@ pub struct ExecutionRecord {
 #[derive(Debug, Copy, Clone, Default)]
 pub struct MemoryAccessRecord {
     /// The memory access of the `src` register.
-    pub src: Option<MemoryRecordEnum>,
+    pub mv: Option<MemoryRecordEnum>,
     /// The memory access of the `dst` register.
-    pub dst: Option<MemoryRecordEnum>,
+    pub next_mv: Option<MemoryRecordEnum>,
 }
 
 impl ExecutionRecord {

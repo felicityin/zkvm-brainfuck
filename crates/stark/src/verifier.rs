@@ -86,10 +86,10 @@ impl<SC: StarkGenericConfig, A: MachineAir<Val<SC>>> Verifier<SC, A> {
 
             challenger.observe_slice(local_sum.as_base_slice());
 
-            if chip.sends().is_empty() && !local_sum.is_zero() {
-                // return Err(VerificationError::CumulativeSumsError(
-                //     "local cumulative sum is non-zero, but no local lookups."),
-                // );
+            if chip.sends().is_empty() && chip.receives().is_empty() && !local_sum.is_zero() {
+                return Err(VerificationError::CumulativeSumsError(
+                    "local cumulative sum is non-zero, but no local lookups."),
+                );
             }
         }
 
