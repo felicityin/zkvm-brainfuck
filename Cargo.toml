@@ -19,6 +19,7 @@ members = [
     "crates/sdk",
     "crates/stark",
 ]
+exclude = ["examples/target"]
 resolver = "2"
 
 [workspace.dependencies]

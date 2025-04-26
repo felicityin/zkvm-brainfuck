@@ -10,8 +10,8 @@ use p3_maybe_rayon::prelude::{ParallelBridge, ParallelIterator};
 
 use bf_core_executor::{ExecutionRecord, Program};
 use bf_derive::AlignedBorrow;
-use bf_stark::{AirLookup, LookupKind};
 use bf_stark::air::{BfAirBuilder, MachineAir};
+use bf_stark::{AirLookup, LookupKind};
 
 use crate::utils::{next_power_of_two, zeroed_f_vec};
 

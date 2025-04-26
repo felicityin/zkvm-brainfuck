@@ -185,7 +185,9 @@ where
                 tracing::info!("you're receiving more than you are sending");
             }
         } else {
-            tracing::info!("the total number of sends and receives match, but the keys don't match");
+            tracing::info!(
+                "the total number of sends and receives match, but the keys don't match"
+            );
             tracing::info!("check the arguments");
         }
     }

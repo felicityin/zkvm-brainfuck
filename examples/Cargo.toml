@@ -1,0 +1,14 @@
+[workspace]
+members = [
+    "fibonacci",
+    "hello",
+]
+
+resolver = "2"
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+
+[workspace.dependencies]
+bf-sdk = { path = "../crates/sdk" }

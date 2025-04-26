@@ -4,8 +4,8 @@ use p3_air::AirBuilder;
 use p3_field::FieldAlgebra;
 
 use bf_core_executor::ByteOpcode;
-use bf_stark::{AirLookup, LookupKind};
 use bf_stark::air::{BaseAirBuilder, ByteAirBuilder};
+use bf_stark::{AirLookup, LookupKind};
 
 use crate::memory::{MemoryAccessCols, MemoryCols};
 

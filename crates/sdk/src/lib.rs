@@ -12,6 +12,7 @@ pub use provers::BfVerificationError;
 pub use provers::{CpuProver, Prover};
 
 // Re-export the utilities.
+pub use bf_core_machine::utils;
 pub use bf_core_machine::utils::setup_logger;
 pub use bf_prover::{BfProver, BfProvingKey, BfVerifyingKey, CoreSC, InnerSC};
 
