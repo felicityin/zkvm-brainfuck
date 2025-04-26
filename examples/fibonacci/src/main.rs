@@ -15,7 +15,7 @@ fn main() {
 
     // Execute the guest using the `ProverClient.execute` method, without generating a proof.
     let output = client.execute(ELF, stdin.clone()).run().unwrap();
-    println!("result: {:?}", output);
+    println!("result: {output:?}");
 
     // Generate the proof for the given guest and input.
     let (pk, vk) = client.setup(ELF);
