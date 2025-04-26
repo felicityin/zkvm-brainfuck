@@ -61,7 +61,7 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
         do_check: impl Into<Self::Expr>,
         clk: impl Into<Self::Expr>,
     ) {
-        let _do_check: Self::Expr = do_check.into();
+        let do_check: Self::Expr = do_check.into();
 
         // Get the comparison timestamp values for the current and previous memory access.
         let prev_comp_val = mem_access.prev_clk.clone().into();
@@ -76,16 +76,16 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
         // `current_comp_val, prev_comp_val` are range-checked to be `<2^24` and as long as we're
         // working in a field larger than `2 * 2^24` (which is true of the KoalaBear and Mersenne31
         // prime).
-        let _diff_minus_one = current_comp_val - prev_comp_val - Self::Expr::ONE;
+        let diff_minus_one = current_comp_val - prev_comp_val - Self::Expr::ONE;
 
         // Verify that mem_access.ts_diff = mem_access.ts_diff_16bit_limb
         // + mem_access.ts_diff_8bit_limb * 2^16.
-        // self.eval_range_check_24bits(
-        //     diff_minus_one,
-        //     mem_access.diff_16bit_limb.clone(),
-        //     mem_access.diff_8bit_limb.clone(),
-        //     do_check,
-        // );
+        self.eval_range_check_24bits(
+            diff_minus_one,
+            mem_access.diff_16bit_limb.clone(),
+            mem_access.diff_8bit_limb.clone(),
+            do_check,
+        );
     }
 
     /// Verifies the inputted value is within 24 bits.
@@ -111,15 +111,15 @@ pub trait MemoryAirBuilder: BaseAirBuilder {
         // Send the range checks for the limbs.
         self.send_byte(
             Self::Expr::from_canonical_u8(ByteOpcode::U16Range as u8),
-            limb_16,
             Self::Expr::ZERO,
+            limb_16,
             do_check.clone(),
         );
 
         self.send_byte(
             Self::Expr::from_canonical_u8(ByteOpcode::U8Range as u8),
-            Self::Expr::ZERO,
             limb_8,
+            Self::Expr::ZERO,
             do_check,
         )
     }

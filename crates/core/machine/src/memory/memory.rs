@@ -86,11 +86,6 @@ impl<F: PrimeField32> MachineAir<F> for MemoryChip {
         input: &ExecutionRecord,
         _output: &mut ExecutionRecord,
     ) -> RowMajorMatrix<F> {
-        // println!("----------------------");
-        // println!("mem: {:?}", input.cpu_memory_access);
-        // println!("cpu: {:?}", input.cpu_events);
-        // println!("----------------------");
-
         // Generate the trace rows for each event.
         let nb_rows = input.cpu_memory_access.len().div_ceil(NUM_MEMORY_ENTRIES_PER_ROW);
         let padded_nb_rows = next_power_of_two(nb_rows);

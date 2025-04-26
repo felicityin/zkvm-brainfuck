@@ -110,14 +110,16 @@ impl CpuChip {
         // Populate memory accesses.
         if let Some(record) = event.mv_access {
             cols.mv_access.populate(record, blu_events);
+            cols.mv_accessed = F::from_bool(true);
         }
 
         if let Some(MemoryRecordEnum::Write(record)) = event.next_mv_access {
             cols.next_mv_access.populate(record, blu_events);
+            cols.next_mv_accessed = F::from_bool(true);
         }
 
         // Populate range checks for mv.
-        // blu_events.add_u8_range_check(cols.mv_access.access.value.as_canonical_u32() as u8);
+        blu_events.add_u8_range_check(cols.mv.as_canonical_u32() as u8);
 
         cols.is_mv_immutable = F::from_bool(instruction.is_mv_immutable());
 
@@ -135,14 +137,14 @@ impl CpuChip {
         &self,
         cols: &mut CpuCols<F>,
         event: &CpuEvent,
-        _blu_events: &mut impl ByteRecord,
+        blu_events: &mut impl ByteRecord,
     ) {
         let clk_16bit_limb = (event.clk & 0xffff) as u16;
         let clk_8bit_limb = ((event.clk >> 16) & 0xff) as u8;
         cols.clk_16bit_limb = F::from_canonical_u16(clk_16bit_limb);
         cols.clk_8bit_limb = F::from_canonical_u8(clk_8bit_limb);
 
-        // blu_events.add_u16_range_check(clk_16bit_limb);
-        // blu_events.add_u8_range_check(clk_8bit_limb);
+        blu_events.add_u16_range_check(clk_16bit_limb);
+        blu_events.add_u8_range_check(clk_8bit_limb);
     }
 }

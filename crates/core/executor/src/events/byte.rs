@@ -18,9 +18,9 @@ pub struct ByteLookupEvent {
     /// The opcode.
     pub opcode: ByteOpcode,
     /// The first operand.
-    pub value_u16: u16,
-    /// The second operand.
     pub value_u8: u8,
+    /// The second operand.
+    pub value_u16: u16,
 }
 
 /// A type that can record byte lookup events.
@@ -46,8 +46,8 @@ pub trait ByteRecord {
     fn add_u16_range_check(&mut self, value_u16: u16) {
         self.add_byte_lookup_event(ByteLookupEvent {
             opcode: ByteOpcode::U16Range,
-            value_u16,
             value_u8: 0,
+            value_u16,
         });
     }
 
@@ -55,8 +55,8 @@ pub trait ByteRecord {
     fn add_u8_range_check(&mut self, value_u8: u8) {
         self.add_byte_lookup_event(ByteLookupEvent {
             opcode: ByteOpcode::U8Range,
-            value_u16: 0,
             value_u8,
+            value_u16: 0,
         });
     }
 
@@ -70,8 +70,8 @@ pub trait ByteRecord {
 impl ByteLookupEvent {
     /// Creates a new `ByteLookupEvent`.
     #[must_use]
-    pub fn new(opcode: ByteOpcode, value_u16: u16, value_u8: u8) -> Self {
-        Self { opcode, value_u16, value_u8 }
+    pub fn new(opcode: ByteOpcode, value_u8: u8, value_u16: u16) -> Self {
+        Self { opcode, value_u8, value_u16 }
     }
 }
 

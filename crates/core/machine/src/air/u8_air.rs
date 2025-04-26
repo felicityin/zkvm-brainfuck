@@ -11,6 +11,6 @@ pub trait U8AirBuilder: ByteAirBuilder {
         multiplicity: impl Into<Self::Expr> + Clone,
     ) {
         let opcode = Self::Expr::from_canonical_u8(ByteOpcode::U8Range as u8);
-        self.send_byte(opcode, Self::Expr::ZERO, value, multiplicity);
+        self.send_byte(opcode, value, Self::Expr::ZERO, multiplicity);
     }
 }

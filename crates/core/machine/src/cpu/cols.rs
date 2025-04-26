@@ -56,6 +56,9 @@ pub struct CpuCols<T: Copy> {
     pub mv_access: MemoryReadWriteCols<T>,
     pub next_mv_access: MemoryWriteCols<T>,
 
+    pub mv_accessed: T,
+    pub next_mv_accessed: T,
+
     pub is_mv_immutable: T,
 
     pub is_alu: T,

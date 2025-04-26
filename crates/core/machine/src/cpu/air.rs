@@ -6,7 +6,7 @@ use p3_matrix::Matrix;
 use bf_stark::air::{BaseAirBuilder, BfAirBuilder};
 
 use crate::{
-    air::{BfCoreAirBuilder, MemoryAirBuilder},
+    air::{BfCoreAirBuilder, MemoryAirBuilder, U8AirBuilder},
     cpu::{
         cols::{CpuCols, NUM_CPU_COLS},
         CpuChip,
@@ -98,7 +98,7 @@ impl CpuChip {
     pub(crate) fn eval_clk<AB: BfAirBuilder>(
         &self,
         builder: &mut AB,
-        _local: &CpuCols<AB::Var>,
+        local: &CpuCols<AB::Var>,
         next: &CpuCols<AB::Var>,
         clk: AB::Expr,
     ) {
@@ -112,12 +112,12 @@ impl CpuChip {
         builder.when_transition().when(next.is_real).assert_eq(expected_next_clk, next_clk);
 
         // Range check that the clk is within 24 bits using it's limb values.
-        // builder.eval_range_check_24bits(
-        //     clk,
-        //     local.clk_16bit_limb,
-        //     local.clk_8bit_limb,
-        //     local.is_real,
-        // );
+        builder.eval_range_check_24bits(
+            clk,
+            local.clk_16bit_limb,
+            local.clk_8bit_limb,
+            local.is_real,
+        );
     }
 
     /// Constraints related to the is_real column.
@@ -148,19 +148,19 @@ impl CpuChip {
             clk.clone() + AB::F::from_canonical_u32(1),
             local.mp,
             &local.mv_access,
-            local.is_real - local.is_memory_instr,
+            local.mv_accessed,
         );
 
         builder.eval_memory_access(
             clk.clone() + AB::F::from_canonical_u32(2),
             local.mp,
             &local.next_mv_access,
-            local.is_alu,
+            local.next_mv_accessed,
         );
 
         // Always range check the value in `mv`, as input instruction `,` may witness
         // an invalid value and write it to memory.
-        // builder.range_check_u8(local.mv.into(), local.is_real);
+        builder.range_check_u8(local.mv.into(), local.is_real);
 
         // If we are performing an ALU​​, ​​JMP​​, or ​​OUTPUT instruction, then the value of `mv` is the previous value.
         builder.when(local.is_mv_immutable).assert_eq(local.mv_val(), local.mv_access.prev_value);

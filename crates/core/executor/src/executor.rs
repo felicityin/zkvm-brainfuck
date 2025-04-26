@@ -121,7 +121,7 @@ impl Executor {
             Opcode::Input | Opcode::Output => mv = self.execute_io(instruction),
         }
 
-        self.emit_events(next_pc, instruction, jmp_dst, mp, next_mv, mv, self.memory_accesses);
+        self.emit_events(next_pc, instruction, jmp_dst, mp, next_mv, mv);
 
         // Update the program counter.
         self.state.pc = next_pc;
@@ -203,7 +203,6 @@ impl Executor {
         mp: u32,
         next_mv: u8,
         mv: u8,
-        memory_access: MemoryAccessRecord,
     ) {
         self.record.cpu_events.push(CpuEvent {
             clk: self.state.clk,
@@ -213,8 +212,8 @@ impl Executor {
             next_mp: self.state.mem_ptr,
             next_mv,
             mv,
-            next_mv_access: memory_access.next_mv,
-            mv_access: memory_access.mv,
+            next_mv_access: self.memory_accesses.next_mv,
+            mv_access: self.memory_accesses.mv,
         });
 
         if instruction.is_alu_instruction() {
@@ -246,6 +245,9 @@ impl Executor {
         if instruction.is_io_instruction() {
             self.record.io_events.push(IoEvent::new(self.state.pc, instruction.opcode, mp, mv));
         }
+
+        self.memory_accesses.mv = None;
+        self.memory_accesses.next_mv = None;
     }
 
     /// Read the memory register.

@@ -29,15 +29,15 @@ impl<AB: BfAirBuilder + PairBuilder> Air<AB> for ByteChip<AB::F> {
         let local: &BytePreprocessedCols<AB::Var> = (*prep).borrow();
 
         // Send all the lookups for each operation.
-        for (i, opcode) in ByteOpcode::all().iter().enumerate() {
+        for opcode in ByteOpcode::all() {
             let field_op = opcode.as_field::<AB::F>();
-            let mult = local_mult.multiplicities[i];
+            let mult = local_mult.multiplicities[opcode as usize];
             match opcode {
                 ByteOpcode::U8Range => {
-                    builder.receive_byte(field_op, AB::F::ZERO, local.value_u8, mult)
+                    builder.receive_byte(field_op, local.value_u8, AB::F::ZERO, mult)
                 }
                 ByteOpcode::U16Range => {
-                    builder.receive_byte(field_op, local.value_u16, AB::F::ZERO, mult)
+                    builder.receive_byte(field_op, AB::F::ZERO, local.value_u16, mult)
                 }
             }
         }

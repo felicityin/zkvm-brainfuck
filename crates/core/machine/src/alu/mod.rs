@@ -134,8 +134,7 @@ impl AddSubChip {
         cols.is_add = F::from_bool(matches!(event.opcode, Opcode::Add));
         cols.is_sub = F::from_bool(matches!(event.opcode, Opcode::Sub));
 
-        let is_add = event.opcode == Opcode::Add;
-        let operand_1 = if is_add { event.mv } else { event.next_mv };
+        let operand_1 = if event.opcode == Opcode::Add { event.mv } else { event.next_mv };
         let operand_2 = 1;
         cols.add_operation.populate(blu, operand_1, operand_2);
 
@@ -162,7 +161,7 @@ where
         let is_real = local.is_add + local.is_sub;
         builder.assert_bool(local.is_add);
         builder.assert_bool(local.is_sub);
-        builder.assert_bool(is_real);
+        builder.assert_bool(is_real.clone());
 
         // Evaluate the addition operation.
         AddOperation::<AB::F>::eval(
@@ -170,7 +169,7 @@ where
             local.operand_1,
             local.operand_2,
             local.add_operation,
-            local.is_add + local.is_sub,
+            is_real,
         );
 
         builder.receive_alu(
