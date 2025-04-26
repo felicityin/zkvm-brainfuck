@@ -367,8 +367,6 @@ mod tests {
     #[test]
     fn test_printa_run() {
         let program = Program::from(PRINTA_BF).unwrap();
-        println!("program: {:?}", program);
-
         let mut runtime = Executor::new(program, vec![]);
         runtime.run().unwrap();
 
@@ -378,8 +376,6 @@ mod tests {
     #[test]
     fn test_move_run() {
         let program = Program::from(MOVE_BF).unwrap();
-        println!("program: {:?}", program);
-
         let mut runtime = Executor::new(program, vec![]);
         runtime.run().unwrap();
 
@@ -390,8 +386,6 @@ mod tests {
     #[test]
     fn test_loop_run() {
         let program = Program::from(LOOP_BF).unwrap();
-        println!("program: {:?}", program);
-
         let mut runtime = Executor::new(program, vec![]);
         runtime.run().unwrap();
 
@@ -402,8 +396,6 @@ mod tests {
     #[test]
     fn test_hello_run() {
         let program = Program::from(HELLO_BF).unwrap();
-        println!("program: {:?}", program);
-
         let mut runtime = Executor::new(program, vec![]);
         runtime.run().unwrap();
 
@@ -417,8 +409,6 @@ mod tests {
     #[test]
     fn test_fibo_run() {
         let program = Program::from(FIBO_BF).unwrap();
-        println!("program: {:?}", program);
-
         let mut runtime = Executor::new(program, vec![17]);
         runtime.run().unwrap();
 
