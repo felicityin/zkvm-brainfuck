@@ -27,14 +27,14 @@ pub(crate) mod bf_chips {
 pub enum BfAir<F: PrimeField32> {
     /// An AIR that contains a preprocessed program table and a lookup for the instructions.
     Program(ProgramChip),
+    /// An AIR for the Memory.
+    Memory(MemoryChip),
     /// An AIR for the CPU. Each row represents a cpu cycle.
     Cpu(CpuChip),
     /// A lookup table for byte operations.
     ByteLookup(ByteChip<F>),
-    /// An AIR for the Add and SUB instruction.
+    /// An AIR for the Add and Sub instruction.
     AddSub(AddSubChip),
-    /// An AIR for the Memory instructions.
-    Memory(MemoryChip),
     /// An AIR for the Jump instructions.
     Jump(JumpChip),
     /// An AIR for memory instructions.
@@ -65,8 +65,8 @@ impl<F: PrimeField32> BfAir<F> {
         let jump = Chip::new(BfAir::Jump(JumpChip));
         chips.push(jump);
 
-        // let memory = Chip::new(BfAir::Memory(MemoryChip::new()));
-        // chips.push(memory);
+        let memory = Chip::new(BfAir::Memory(MemoryChip::new()));
+        chips.push(memory);
 
         let byte = Chip::new(BfAir::ByteLookup(ByteChip::default()));
         chips.push(byte);
@@ -115,13 +115,14 @@ pub mod tests {
         setup_logger();
         let instructions = vec![
             Instruction::new(Opcode::Add),
-            Instruction::new(Opcode::Add),
             Instruction::new(Opcode::Sub),
             Instruction::new(Opcode::MemStepForward),
             Instruction::new(Opcode::MemStepBackward),
+            Instruction::new(Opcode::Input),
+            Instruction::new(Opcode::Output),
         ];
         let program = Program::new(instructions);
-        run_test::<CpuProver<_, _>>(program, vec![]).unwrap();
+        run_test::<CpuProver<_, _>>(program, vec![1]).unwrap();
     }
 
     #[test]

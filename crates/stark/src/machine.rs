@@ -269,20 +269,16 @@ impl<SC: StarkGenericConfig, A: MachineAir<Val<SC>>> StarkMachine<SC, A> {
         vk.observe_into(challenger);
 
         tracing::debug_span!("verify shard proof").in_scope(|| {
-            tracing::debug_span!("verifying shard").in_scope(|| {
-                let chips =
-                    self.shard_chips_ordered(&proof.shard_proof.chip_ordering).collect::<Vec<_>>();
-                Verifier::verify_shard(
-                    &self.config,
-                    vk,
-                    &chips,
-                    &mut challenger.clone(),
-                    &proof.shard_proof,
-                )
-                .map_err(MachineVerificationError::InvalidShardProof)
-            })?;
-
-            Ok(())
+            let chips =
+                self.shard_chips_ordered(&proof.shard_proof.chip_ordering).collect::<Vec<_>>();
+            Verifier::verify_shard(
+                &self.config,
+                vk,
+                &chips,
+                &mut challenger.clone(),
+                &proof.shard_proof,
+            )
+            .map_err(MachineVerificationError::InvalidShardProof)
         })?;
         Ok(())
     }

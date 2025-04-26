@@ -11,6 +11,7 @@ use p3_maybe_rayon::prelude::{ParallelBridge, ParallelIterator};
 use bf_core_executor::{ExecutionRecord, Program};
 use bf_derive::AlignedBorrow;
 use bf_stark::air::{BfAirBuilder, MachineAir};
+use bf_stark::{AirLookup, LookupKind};
 
 use crate::utils::{next_power_of_two, zeroed_f_vec};
 
@@ -100,7 +101,6 @@ impl<F: PrimeField32> MachineAir<F> for MemoryChip {
                         let cols = &mut cols.memory_entries[k];
                         if idx + k < input.cpu_memory_access.len() {
                             let event = &input.cpu_memory_access[idx + k];
-                            println!("mem: {:?}", event);
                             cols.addr = F::from_canonical_u32(event.addr);
                             cols.initial_clk =
                                 F::from_canonical_u32(event.initial_mem_access.timestamp);
@@ -134,13 +134,13 @@ where
         let local = main.row_slice(0);
         let local: &MemCols<AB::Var> = (*local).borrow();
 
-        for _local in local.memory_entries.iter() {
-            // let values =
-            //     vec![local.initial_clk.into(), local.addr.into(), local.initial_value.into()];
-            // builder.receive(AirLookup::new(values, local.is_real.into(), LookupKind::Memory));
+        for local in local.memory_entries.iter() {
+            let values =
+                vec![local.initial_clk.into(), local.addr.into(), local.initial_value.into()];
+            builder.receive(AirLookup::new(values, local.is_real.into(), LookupKind::Memory));
 
-            // let values = vec![local.final_clk.into(), local.addr.into(), local.final_value.into()];
-            // builder.send(AirLookup::new(values, local.is_real.into(), LookupKind::Memory));
+            let values = vec![local.final_clk.into(), local.addr.into(), local.final_value.into()];
+            builder.send(AirLookup::new(values, local.is_real.into(), LookupKind::Memory));
         }
     }
 }

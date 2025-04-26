@@ -150,19 +150,19 @@ where
             total += *value;
             *entry.1.entry(chip.name()).or_insert(SC::Val::ZERO) += *value;
         }
-        println!("{} chip has {} distinct events", chip.name(), total_events);
+        tracing::info!("{} chip has {} distinct events", chip.name(), total_events);
     }
 
-    println!("Final counts below.");
-    println!("==================");
+    tracing::info!("Final counts below.");
+    tracing::info!("==================");
 
     let mut any_nonzero = false;
     for (key, (value, chip_values)) in final_map.clone() {
         if !Val::<SC>::is_zero(&value) {
-            println!("Lookup key: {} Send-Receive Discrepancy: {}", key, field_to_int(value));
+            tracing::info!("Lookup key: {} Send-Receive Discrepancy: {}", key, field_to_int(value));
             any_nonzero = true;
             for (chip, chip_value) in chip_values {
-                println!(
+                tracing::info!(
                     " {} chip's send-receive discrepancy for this key is {}",
                     chip,
                     field_to_int(chip_value)
@@ -171,22 +171,24 @@ where
         }
     }
 
-    println!("==================");
+    tracing::info!("==================");
     if !any_nonzero {
-        println!("All chips have the same number of sends and receives.");
+        tracing::info!("All chips have the same number of sends and receives.");
     } else {
-        println!("Positive values mean sent more than received.");
-        println!("Negative values mean received more than sent.");
+        tracing::info!("Positive values mean sent more than received.");
+        tracing::info!("Negative values mean received more than sent.");
         if total != SC::Val::ZERO {
-            println!("Total send-receive discrepancy: {}", field_to_int(total));
+            tracing::info!("Total send-receive discrepancy: {}", field_to_int(total));
             if field_to_int(total) > 0 {
-                println!("you're sending more than you are receiving");
+                tracing::info!("you're sending more than you are receiving");
             } else {
-                println!("you're receiving more than you are sending");
+                tracing::info!("you're receiving more than you are sending");
             }
         } else {
-            println!("the total number of sends and receives match, but the keys don't match");
-            println!("check the arguments");
+            tracing::info!(
+                "the total number of sends and receives match, but the keys don't match"
+            );
+            tracing::info!("check the arguments");
         }
     }
 

@@ -42,16 +42,16 @@ impl<F: Field> ByteChip<F> {
         for (row_index, (b, c)) in (0..=u8::MAX).cartesian_product(0..=u8::MAX).enumerate() {
             let col: &mut BytePreprocessedCols<F> = initial_trace.row_mut(row_index).borrow_mut();
 
-            col.value_u8 = F::from_canonical_u8(b);
+            col.value_u8 = F::from_canonical_u8(c);
 
             // Iterate over all operations for results and updating the table map.
             for opcode in opcodes.iter() {
                 match opcode {
-                    ByteOpcode::U8Range => ByteLookupEvent::new(*opcode, 0, b),
+                    ByteOpcode::U8Range => ByteLookupEvent::new(*opcode, b, 0),
                     ByteOpcode::U16Range => {
                         let v = ((b as u32) << 8) + c as u32;
                         col.value_u16 = F::from_canonical_u32(v);
-                        ByteLookupEvent::new(*opcode, v as u16, 0)
+                        ByteLookupEvent::new(*opcode, 0, v as u16)
                     }
                 };
             }

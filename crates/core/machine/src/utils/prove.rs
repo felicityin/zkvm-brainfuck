@@ -54,7 +54,7 @@ where
         Size::from_bytes(nb_bytes),
     );
 
-    // #[cfg(feature = "debug")]
+    #[cfg(feature = "debug")]
     {
         let mut challenger = prover.machine().config().challenger();
         let pk_host = prover.pk_to_host(pk);
@@ -68,11 +68,7 @@ pub fn run_test<P: MachineProver<KoalaBearPoseidon2, BfAir<KoalaBear>>>(
     program: Program,
     input: Vec<u8>,
 ) -> Result<MachineProof<KoalaBearPoseidon2>, MachineVerificationError<KoalaBearPoseidon2>> {
-    let runtime = tracing::debug_span!("runtime.run(...)").in_scope(|| {
-        let mut runtime = Executor::new(program, input);
-        runtime.run().unwrap();
-        runtime
-    });
+    let runtime = Executor::new(program, input);
     run_test_core::<P>(runtime)
 }
 

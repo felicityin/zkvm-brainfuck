@@ -107,14 +107,12 @@ impl Executor {
         let mut next_pc = self.state.pc.wrapping_add(1);
         let mut jmp_dst: u32 = 0;
         let mut next_mv: u8 = 0;
-        let mv: u8;
+        let mut mv: u8 = 0;
         let mp = self.state.mem_ptr;
 
         // Execute the instruction.
         match instruction.opcode {
-            Opcode::MemStepForward | Opcode::MemStepBackward => {
-                mv = self.execute_memory(instruction)
-            }
+            Opcode::MemStepForward | Opcode::MemStepBackward => self.execute_memory(instruction),
             Opcode::Add | Opcode::Sub => (next_mv, mv) = self.execute_alu(instruction),
             Opcode::LoopStart | Opcode::LoopEnd => {
                 (mv, next_pc) = self.execute_jump(instruction);
@@ -123,43 +121,41 @@ impl Executor {
             Opcode::Input | Opcode::Output => mv = self.execute_io(instruction),
         }
 
-        self.emit_events(next_pc, instruction, jmp_dst, mp, next_mv, mv, self.memory_accesses);
+        self.emit_events(next_pc, instruction, jmp_dst, mp, next_mv, mv);
 
         // Update the program counter.
         self.state.pc = next_pc;
 
         // Update the clk to the next cycle.
-        self.state.clk += 3;
+        self.state.clk += 2;
         Ok(())
     }
 
     /// Execute a memory instruction.
-    fn execute_memory(&mut self, instruction: &Instruction) -> u8 {
+    fn execute_memory(&mut self, instruction: &Instruction) {
         let mp = match instruction.opcode {
             Opcode::MemStepForward => self.state.mem_ptr.wrapping_add(1),
             Opcode::MemStepBackward => self.state.mem_ptr.wrapping_sub(1),
             _ => unreachable!(),
         };
-        let mv = self.rr_cpu(mp);
         self.state.mem_ptr = mp;
-        mv
     }
 
     /// Execute an ALU instruction.
     fn execute_alu(&mut self, instruction: &Instruction) -> (u8, u8) {
-        let mv = self.rr_cpu(self.state.mem_ptr);
+        let mv = self.rr_cpu(self.state.mem_ptr, self.state.clk + 1);
         let next_mv = match instruction.opcode {
             Opcode::Add => mv.wrapping_add(1),
             Opcode::Sub => mv.wrapping_sub(1),
             _ => unreachable!(),
         };
-        self.rw_cpu(self.state.mem_ptr, next_mv);
+        self.rw_cpu(self.state.mem_ptr, next_mv, self.state.clk + 2, true);
         (next_mv, mv)
     }
 
     /// Execute a jump instruction.
     fn execute_jump(&mut self, instruction: &Instruction) -> (u8, u32) {
-        let mv = self.rr_cpu(self.state.mem_ptr);
+        let mv = self.rr_cpu(self.state.mem_ptr, self.state.clk + 1);
         let next_pc = match instruction.opcode {
             Opcode::LoopStart => {
                 if mv == 0 {
@@ -185,11 +181,11 @@ impl Executor {
         match instruction.opcode {
             Opcode::Input => {
                 let input = self.state.input_stream[self.state.input_stream_ptr];
-                self.rw_cpu(self.state.mem_ptr, input);
+                self.rw_cpu(self.state.mem_ptr, input, self.state.clk + 1, false);
                 input
             }
             Opcode::Output => {
-                let output = self.rr_cpu(self.state.mem_ptr);
+                let output = self.rr_cpu(self.state.mem_ptr, self.state.clk + 1);
                 self.state.output_stream.push(output);
                 output
             }
@@ -207,7 +203,6 @@ impl Executor {
         mp: u32,
         next_mv: u8,
         mv: u8,
-        memory_access: MemoryAccessRecord,
     ) {
         self.record.cpu_events.push(CpuEvent {
             clk: self.state.clk,
@@ -217,8 +212,8 @@ impl Executor {
             next_mp: self.state.mem_ptr,
             next_mv,
             mv,
-            dst_access: memory_access.dst,
-            src_access: memory_access.src,
+            next_mv_access: self.memory_accesses.next_mv,
+            mv_access: self.memory_accesses.mv,
         });
 
         if instruction.is_alu_instruction() {
@@ -250,22 +245,29 @@ impl Executor {
         if instruction.is_io_instruction() {
             self.record.io_events.push(IoEvent::new(self.state.pc, instruction.opcode, mp, mv));
         }
+
+        self.memory_accesses.mv = None;
+        self.memory_accesses.next_mv = None;
     }
 
     /// Read the memory register.
     #[inline]
-    pub fn rr_cpu(&mut self, addr: u32) -> u8 {
+    pub fn rr_cpu(&mut self, addr: u32, timestamp: u32) -> u8 {
         // Read the address from memory and create a memory read record if in trace mode.
-        let record = self.rr_traced(addr, self.state.clk + 1);
-        self.memory_accesses.src = Some(record.into());
+        let record = self.rr_traced(addr, timestamp);
+        self.memory_accesses.mv = Some(record.into());
         record.value
     }
 
     /// Write to a register.
-    pub fn rw_cpu(&mut self, register: u32, value: u8) {
+    pub fn rw_cpu(&mut self, register: u32, value: u8, timestamp: u32, is_alu: bool) {
         // Read the address from memory and create a memory read record.
-        let record = self.rw_traced(register, value, self.state.clk + 2);
-        self.memory_accesses.dst = Some(record.into());
+        let record = self.rw_traced(register, value, timestamp);
+        if is_alu {
+            self.memory_accesses.next_mv = Some(record.into());
+        } else {
+            self.memory_accesses.mv = Some(record.into());
+        }
     }
 
     /// Read a register and create an access record.
@@ -312,9 +314,6 @@ impl Executor {
                 initial_mem_access: prev_record,
                 final_mem_access: *record,
             });
-
-        // println!("self.state.memory_access: {:?}", &mut self.state.memory_access);
-        // println!("self.memory_events: {:?}", &mut self.memory_events);
 
         // Construct the memory write record.
         MemoryWriteRecord {

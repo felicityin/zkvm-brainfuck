@@ -1,0 +1,8 @@
+[package]
+name = "hello"
+version = { workspace = true }
+edition = { workspace = true }
+publish = false
+
+[dependencies]
+bf-sdk = { workspace = true }

@@ -23,7 +23,7 @@ pub struct CpuEvent {
     /// For ALU instructions.
     pub next_mv: u8,
     /// The mv memory record.
-    pub src_access: Option<MemoryRecordEnum>,
+    pub mv_access: Option<MemoryRecordEnum>,
     /// The next_mv memory record.
-    pub dst_access: Option<MemoryRecordEnum>,
+    pub next_mv_access: Option<MemoryRecordEnum>,
 }
