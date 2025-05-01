@@ -2,7 +2,7 @@
 
 > This repo is inspired by [SP1](https://github.com/succinctlabs/sp1) and [zkMIPS](https://github.com/zkMIPS/zkMIPS).
 
-zkvm-brainfuck is a ZK-VM for the Brainfuck language.
+zkvm-brainfuck is a ZK-VM for the Brainfuck language, built on [Plonky3](https://github.com/Plonky3/Plonky3).
 
 - Designed as a register machine instead of a stack machine with RAM.
 - Compared to SP1, this system employs a single shard and produces only core proofs.

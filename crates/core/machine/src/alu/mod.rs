@@ -19,6 +19,9 @@ use crate::utils::{next_power_of_two, zeroed_f_vec};
 /// The number of main trace columns for `AddSubChip`.
 pub const NUM_ADD_SUB_COLS: usize = size_of::<AddSubCols<u8>>();
 
+#[derive(Default)]
+pub struct AddSubChip;
+
 /// The column layout for the chip.
 #[derive(AlignedBorrow, Default, Clone, Copy)]
 #[repr(C)]
@@ -189,9 +192,6 @@ where
         );
     }
 }
-
-#[derive(Default)]
-pub struct AddSubChip;
 
 #[cfg(test)]
 mod tests {

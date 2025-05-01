@@ -36,6 +36,7 @@ where
     // Setup the runtime.
     let mut runtime = Executor::new(program, input);
 
+    // Execute the program to collect trace events.
     runtime.run().map_err(BfCoreProverError::ExecutionError)?;
 
     // Prove the program.

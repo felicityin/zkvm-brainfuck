@@ -57,6 +57,8 @@ where
         builder.assert_bool(local.is_memory_instr);
         builder.assert_bool(local.is_io);
         builder.assert_bool(local.is_mv_immutable);
+        builder.assert_bool(local.mv_accessed);
+        builder.assert_bool(local.next_mv_accessed);
     }
 }
 
