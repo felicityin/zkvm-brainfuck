@@ -47,7 +47,7 @@ where
         self.eval_clk(builder, local, next, clk.clone());
 
         // Check that the pc is updated correctly.
-        builder.when_transition().when(next.is_real).assert_eq(local.next_pc, next.pc);
+        self.eval_pc(builder, local, next);
 
         // Check that the is_real flag is correct.
         self.eval_is_real(builder, local, next);
@@ -120,6 +120,22 @@ impl CpuChip {
             local.clk_8bit_limb,
             local.is_real,
         );
+    }
+
+    /// Constraints related to the pc.
+    pub(crate) fn eval_pc<AB: BfAirBuilder>(
+        &self,
+        builder: &mut AB,
+        local: &CpuCols<AB::Var>,
+        next: &CpuCols<AB::Var>,
+    ) {
+        builder.when_transition().when(next.is_real).assert_eq(local.next_pc, next.pc);
+
+        builder
+            .when_transition()
+            .when(local.is_real)
+            .when_not(local.is_jump)
+            .assert_eq(local.next_pc, local.pc + AB::Expr::from_canonical_u32(1));
     }
 
     /// Constraints related to the is_real column.
